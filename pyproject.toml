@@ -1,24 +1,32 @@
 [project]
 name = "temporal-python"
 version = "0.1.0"
-description = "A Python project following coding standards"
-authors = [{ name = "Your Name", email = "your.email@example.com" }]
+description = "Temporal workflow for VMware VM creation"
+authors = [{ name = "Wanli"}]
 requires-python = ">=3.8"
 
 [tool.poetry]
 packages = [{ include = "temporal_python" }]
 
+[tool.poetry.dependencies]
+python = "^3.8"
+temporalio = "^1.0"
+pydantic = "^2.0"
+python-dotenv = "^1.0"
+pyvmomi = "^7.0"
+pyyaml = "^6.0"
+
 [tool.black]
 line-length = 88
 target-version = ["py38"]
-include = \["\.pyi?$", "\.pyx?$"\]
-exclude = \[
-    "\.git/",
-    "\.mypy_cache/",
-    "\.venv/",
+include = ["\\.pyi?$", "\\.pyx?$"]
+exclude = [
+    "\\.git/",
+    "\\.mypy_cache/",
+    "\\.venv/",
     "dist/",
     "build/"
-\]
+]
 
 [tool.isort]
 profile = "black"
