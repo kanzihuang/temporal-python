@@ -1,0 +1,46 @@
+[project]
+name = "temporal-python"
+version = "0.1.0"
+description = "A Python project following coding standards"
+authors = [{ name = "Your Name", email = "your.email@example.com" }]
+requires-python = ">=3.8"
+
+[tool.poetry]
+packages = [{ include = "temporal_python" }]
+
+[tool.black]
+line-length = 88
+target-version = ["py38"]
+include = \["\.pyi?$", "\.pyx?$"\]
+exclude = \[
+    "\.git/",
+    "\.mypy_cache/",
+    "\.venv/",
+    "dist/",
+    "build/"
+\]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+lines_after_imports = 2
+lines_between_sections = 1
+
+[tool.mypy]
+python_version = 3.8
+strict = true
+disable_error_code = ["import"]
+
+[tool.pytest.ini_options]
+pythonpath = "."
+testpaths = ["tests"]
+addopts = "--cov=temporal_python --cov-report=term-missing"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = ".git,.mypy_cache,.venv,dist,build"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

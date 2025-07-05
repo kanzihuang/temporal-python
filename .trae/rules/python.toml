@@ -1,0 +1,11 @@
+[python]
+# 强制类型注解要求
+force_type_annotations = true
+# PEP8代码生成风格
+code_style = "pep8"
+# 自动导入优化
+auto_import_optimization = true
+# 函数最大长度限制（行数）
+max_function_length = 50
+# 启用复杂逻辑自动拆分建议
+enable_complex_logic_split = true
