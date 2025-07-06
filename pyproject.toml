@@ -3,22 +3,27 @@ name = "temporal-python"
 version = "0.1.0"
 description = "Temporal workflow for VMware VM creation"
 authors = [{ name = "Wanli"}]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 
 [tool.poetry]
 packages = [{ include = "temporal_python" }]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.9"
 temporalio = "^1.0"
 pydantic = "^2.0"
 python-dotenv = "^1.0"
 pyvmomi = "^7.0"
 pyyaml = "^6.0"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.1"
+pytest-cov = "^6.2.1"
+pytest-asyncio = "^1.0.0"
+
 [tool.black]
 line-length = 88
-target-version = ["py38"]
+target-version = ["py39"]
 include = ["\\.pyi?$", "\\.pyx?$"]
 exclude = [
     "\\.git/",
@@ -35,7 +40,7 @@ lines_after_imports = 2
 lines_between_sections = 1
 
 [tool.mypy]
-python_version = 3.8
+python_version = 3.9
 strict = true
 disable_error_code = ["import"]
 
@@ -43,6 +48,7 @@ disable_error_code = ["import"]
 pythonpath = "."
 testpaths = ["tests"]
 addopts = "--cov=temporal_python --cov-report=term-missing"
+asyncio_mode = "auto"
 
 [tool.flake8]
 max-line-length = 88
