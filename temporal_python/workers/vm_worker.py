@@ -14,7 +14,7 @@ from temporal_python.shared.config import config
 # 配置日志
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-TEMPORAL_TASK_QUEUE = "vm_creation_task_queue"
+TEMPORAL_TASK_QUEUE = "vmware"
 
 async def main(temporal_host: str, temporal_port: int):
     """启动Temporal Worker以处理VM创建工作流"""

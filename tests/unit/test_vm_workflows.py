@@ -32,7 +32,7 @@ class TestVMCreationWorkflow:
         assert called_args[0][0] == "create_vm_activity"
         assert called_args[0][1] == sample_vm_request
         assert called_args[1]["schedule_to_close_timeout"].total_seconds() == 1800
-        assert called_args[1]["task_queue"] == "vm_creation_task_queue"
+        assert called_args[1]["task_queue"] == "vmware"
         assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
     @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
@@ -60,7 +60,7 @@ class TestVMCreationWorkflow:
             assert called_args[0][0] == "create_vm_activity"
             assert called_args[0][1] == request
             assert called_args[1]["schedule_to_close_timeout"].total_seconds() == 1800
-            assert called_args[1]["task_queue"] == "vm_creation_task_queue"
+            assert called_args[1]["task_queue"] == "vmware"
             assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
     @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
@@ -124,7 +124,7 @@ class TestVMCreationWorkflow:
         task_queue = call_args[1]['task_queue']
         
         # 验证任务队列配置
-        assert task_queue == "vm_creation_task_queue"
+        assert task_queue == "vmware"
 
     @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_with_complex_vm_request(self, mock_execute_activity):
@@ -150,7 +150,7 @@ class TestVMCreationWorkflow:
         assert called_args[0][0] == "create_vm_activity"
         assert called_args[0][1] == complex_request
         assert called_args[1]["schedule_to_close_timeout"].total_seconds() == 1800
-        assert called_args[1]["task_queue"] == "vm_creation_task_queue"
+        assert called_args[1]["task_queue"] == "vmware"
         assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
     @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
@@ -207,7 +207,7 @@ class TestVMCreationWorkflow:
         assert called_args[0][0] == "create_vm_activity"
         assert called_args[0][1] == minimal_request
         assert called_args[1]["schedule_to_close_timeout"].total_seconds() == 1800
-        assert called_args[1]["task_queue"] == "vm_creation_task_queue"
+        assert called_args[1]["task_queue"] == "vmware"
         assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
     @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)

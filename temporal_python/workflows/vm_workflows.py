@@ -18,7 +18,7 @@ class VMCreationWorkflow:
                 maximum_interval=timedelta(seconds=60),
                 maximum_attempts=5,
             ),
-            task_queue="vm_creation_task_queue"
+            task_queue="vmware"
         )
         return vm_name
 

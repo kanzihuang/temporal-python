@@ -85,7 +85,8 @@ This project implements a Temporal workflow to automate VMware virtual machine c
      --num-cpus 2 \
      --memory-gb 4 \
      --disk-size-gb 40 \
-     --notes "Created via Temporal workflow"
+     --notes "Created via Temporal workflow" \
+     --task-queue vmware
    ```
 
 ## Coding Standards

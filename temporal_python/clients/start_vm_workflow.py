@@ -26,7 +26,7 @@ async def start_vm_workflow(request: VMRequest, temporal_host: str, temporal_por
             request.model_dump(),
             id=workflow_id,
             id_reuse_policy=WorkflowIDReusePolicy.ALLOW_DUPLICATE,
-            task_queue="vm_creation_task_queue",
+            task_queue="vmware",
             run_timeout=timedelta(minutes=60)
         )
     logger.info(f"VM creation workflow started with ID: {workflow_id}")
