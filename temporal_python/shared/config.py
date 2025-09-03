@@ -1,7 +1,7 @@
 import yaml
 from pydantic import BaseModel
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 class VMwareConfig(BaseModel):
     host: str
@@ -14,12 +14,23 @@ class VMwareConfig(BaseModel):
     network: str
     folder: str
 
+class KuboardSiteConfig(BaseModel):
+    name: str
+    url: str
+    username: str
+    access_key: str
+    secret_key: str
+
+class KuboardConfig(BaseModel):
+    sites: List[KuboardSiteConfig]
+
 class LoggingConfig(BaseModel):
     level: str
     file: str
 
 class AppConfig(BaseModel):
     vmware: VMwareConfig
+    kuboard: KuboardConfig
     logging: LoggingConfig
 
 class ConfigLoader:
@@ -37,6 +48,15 @@ class ConfigLoader:
 
             cls._instance = AppConfig(**config_data)
         return cls._instance
+
+    @classmethod
+    def get_kuboard_site(cls, site_name: str) -> KuboardSiteConfig:
+        """根据站点名称获取 KuBoard 配置"""
+        config = cls.load()
+        for site in config.kuboard.sites:
+            if site.name == site_name:
+                return site
+        raise ValueError(f"KuBoard site '{site_name}' not found in configuration")
 
 # 全局配置实例
 config = ConfigLoader.load()

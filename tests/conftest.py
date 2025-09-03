@@ -7,7 +7,8 @@ import yaml
 from pathlib import Path
 from unittest.mock import Mock, patch
 from temporal_python.shared.schemas import VMRequest
-from temporal_python.shared.config import VMwareConfig, LoggingConfig, AppConfig
+from temporal_python.shared.config import VMwareConfig, LoggingConfig, AppConfig, KuboardConfig, KuboardSiteConfig
+import os
 
 
 @pytest.fixture
@@ -59,13 +60,72 @@ def sample_app_config(sample_vmware_config, sample_logging_config):
 
 
 @pytest.fixture
-def temp_config_file(sample_app_config):
-    """创建临时配置文件用于测试"""
+def mock_config():
+    """Mock configuration for testing"""
+    return AppConfig(
+        vmware=VMwareConfig(
+            host="test-host",
+            port=443,
+            username="test-user",
+            password="test-pass",
+            datacenter="test-dc",
+            cluster="test-cluster",
+            datastore="test-ds",
+            network="test-network",
+            folder="test-folder"
+        ),
+        kuboard=KuboardConfig(
+            sites=[
+                KuboardSiteConfig(
+                    name="site1",
+                    url="http://test.com:8089",
+                    username="admin",
+                    access_key="test-access-key",
+                    secret_key="test-secret-key"
+                )
+            ]
+        ),
+        logging=LoggingConfig(
+            level="INFO",
+            file="test.log"
+        )
+    )
+
+@pytest.fixture
+def temp_config_file():
+    """Create a temporary config file for testing"""
+    config_content = """
+vmware:
+  host: "test-host"
+  port: 443
+  username: "test-user"
+  password: "test-pass"
+  datacenter: "test-dc"
+  cluster: "test-cluster"
+  datastore: "test-ds"
+  network: "test-network"
+  folder: "test-folder"
+
+kuboard:
+  sites:
+    - name: "site1"
+      url: "http://test.com:8089"
+      username: "admin"
+      access_key: "test-access-key"
+      secret_key: "test-secret-key"
+
+logging:
+  level: "INFO"
+  file: "test.log"
+"""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(sample_app_config.dict(), f)
-        yield f.name
-    # 清理临时文件
-    Path(f.name).unlink(missing_ok=True)
+        f.write(config_content)
+        temp_file = f.name
+    
+    yield temp_file
+    
+    # Cleanup
+    os.unlink(temp_file)
 
 
 @pytest.fixture

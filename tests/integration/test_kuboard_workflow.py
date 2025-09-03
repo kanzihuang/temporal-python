@@ -6,7 +6,8 @@ from temporal_python.workflows.kuboard_workflows import (
 
 def test_kuboard_namespace_authorize_params():
     """测试 KuboardNamespaceAuthorize 参数"""
-    params = KuboardNamespaceAuthorizeParams('c1', 'ns1', 'user', 'admin')
+    params = KuboardNamespaceAuthorizeParams('site1', 'c1', 'ns1', 'user', 'admin')
+    assert params.kuboard_site_name == 'site1'
     assert params.cluster_id == 'c1'
     assert params.namespace == 'ns1'
     assert params.username == 'user'
@@ -14,7 +15,8 @@ def test_kuboard_namespace_authorize_params():
 
 def test_kuboard_namespace_create_params():
     """测试 KuboardNamespaceCreate 参数"""
-    params = KuboardNamespaceCreateParams('c1', 'ns1', 'user', 'admin')
+    params = KuboardNamespaceCreateParams('site1', 'c1', 'ns1', 'user', 'admin')
+    assert params.kuboard_site_name == 'site1'
     assert params.cluster_id == 'c1'
     assert params.namespace == 'ns1'
     assert params.username == 'user'
@@ -36,15 +38,16 @@ def test_workflow_class_definitions():
 def test_workflow_parameters_validation():
     """测试工作流参数验证"""
     # 测试有效参数
-    valid_params = KuboardNamespaceAuthorizeParams('cluster1', 'namespace1', 'user1', 'admin')
+    valid_params = KuboardNamespaceAuthorizeParams('site1', 'cluster1', 'namespace1', 'user1', 'admin')
+    assert valid_params.kuboard_site_name == 'site1'
     assert valid_params.cluster_id == 'cluster1'
     assert valid_params.namespace == 'namespace1'
     assert valid_params.username == 'user1'
     assert valid_params.role == 'admin'
     
     # 测试不同角色
-    edit_params = KuboardNamespaceAuthorizeParams('cluster1', 'namespace1', 'user1', 'edit')
+    edit_params = KuboardNamespaceAuthorizeParams('site1', 'cluster1', 'namespace1', 'user1', 'edit')
     assert edit_params.role == 'edit'
     
-    view_params = KuboardNamespaceAuthorizeParams('cluster1', 'namespace1', 'user1', 'view')
+    view_params = KuboardNamespaceAuthorizeParams('site1', 'cluster1', 'namespace1', 'user1', 'view')
     assert view_params.role == 'view'
