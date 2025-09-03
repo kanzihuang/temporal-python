@@ -1,7 +1,10 @@
 import yaml
+import os
+import asyncio
 from pydantic import BaseModel
 from pathlib import Path
 from typing import Optional, List
+from temporalio.client import Client
 
 class VMwareConfig(BaseModel):
     host: str
@@ -57,6 +60,20 @@ class ConfigLoader:
             if site.name == site_name:
                 return site
         raise ValueError(f"KuBoard site '{site_name}' not found in configuration")
+
+async def get_temporal_client() -> Client:
+    """获取 Temporal 客户端连接"""
+    temporal_host = os.getenv("TEMPORAL_HOST", "localhost")
+    temporal_port = int(os.getenv("TEMPORAL_PORT", "7233"))
+    
+    try:
+        client = await asyncio.wait_for(
+            Client.connect(f"{temporal_host}:{temporal_port}"),
+            timeout=10
+        )
+        return client
+    except Exception as e:
+        raise ConnectionError(f"Failed to connect to Temporal server at {temporal_host}:{temporal_port}: {str(e)}")
 
 # 全局配置实例
 config = ConfigLoader.load()

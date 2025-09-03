@@ -1,6 +1,8 @@
+from temporalio import activity
 from temporal_python.services.kuboard_service import KuBoardService, NamespaceAlreadyExistsError, NamespaceCreationError
 from temporal_python.shared.config import ConfigLoader
 
+@activity.defn
 async def create_namespace_activity(kuboard_site_name: str, cluster_id: str, namespace: str) -> bool:
     # 从配置中获取 KuBoard 站点信息
     kuboard_site = ConfigLoader.get_kuboard_site(kuboard_site_name)
@@ -19,6 +21,7 @@ async def create_namespace_activity(kuboard_site_name: str, cluster_id: str, nam
         # 其他错误，可以重试
         raise
 
+@activity.defn
 async def grant_permission_activity(kuboard_site_name: str, cluster_id: str, namespace: str, username: str, role: str) -> bool:
     # 从配置中获取 KuBoard 站点信息
     kuboard_site = ConfigLoader.get_kuboard_site(kuboard_site_name)
