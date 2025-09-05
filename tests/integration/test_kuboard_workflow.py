@@ -27,10 +27,10 @@ def test_workflow_class_definitions():
     # 验证工作流类存在且可实例化
     auth_workflow = KuboardNamespaceAuthorize()
     create_workflow = KuboardNamespaceCreate()
-    
+
     assert auth_workflow is not None
     assert create_workflow is not None
-    
+
     # 验证工作流类有 run 方法
     assert hasattr(auth_workflow, 'run')
     assert hasattr(create_workflow, 'run')
@@ -44,10 +44,10 @@ def test_workflow_parameters_validation():
     assert valid_params.namespace == 'namespace1'
     assert valid_params.username == 'user1'
     assert valid_params.role == 'admin'
-    
+
     # 测试不同角色
     edit_params = KuboardNamespaceAuthorizeParams('site1', 'cluster1', 'namespace1', 'user1', 'edit')
     assert edit_params.role == 'edit'
-    
+
     view_params = KuboardNamespaceAuthorizeParams('site1', 'cluster1', 'namespace1', 'user1', 'view')
     assert view_params.role == 'view'

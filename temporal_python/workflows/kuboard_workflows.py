@@ -3,11 +3,13 @@ from dataclasses import dataclass
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 
+
 @dataclass
 class CreateNamespaceParams:
     kuboard_site_name: str
     cluster_id: str
     namespace: str
+
 
 @dataclass
 class GrantPermissionParams:
@@ -17,6 +19,7 @@ class GrantPermissionParams:
     username: str
     role: str
 
+
 @dataclass
 class KuboardNamespaceAuthorizeParams:
     kuboard_site_name: str
@@ -25,6 +28,7 @@ class KuboardNamespaceAuthorizeParams:
     username: str
     role: str
 
+
 @dataclass
 class KuboardNamespaceCreateParams:
     kuboard_site_name: str
@@ -32,6 +36,7 @@ class KuboardNamespaceCreateParams:
     namespace: str
     username: str
     role: str
+
 
 @workflow.defn
 class KuboardNamespaceAuthorize:
@@ -49,7 +54,16 @@ class KuboardNamespaceAuthorize:
             "grant_permission_activity",
             grant_params,
             schedule_to_close_timeout=timedelta(seconds=30),
+            retry_policy=RetryPolicy(
+                initial_interval=timedelta(seconds=1),
+                maximum_interval=timedelta(seconds=10),
+                maximum_attempts=3,
+                non_retryable_error_types=[
+                    "NamespaceNotFoundError"
+                ]
+            )
         )
+
 
 @workflow.defn
 class KuboardNamespaceCreate:
@@ -70,7 +84,9 @@ class KuboardNamespaceCreate:
                     initial_interval=timedelta(seconds=1),
                     maximum_interval=timedelta(seconds=10),
                     maximum_attempts=3,
-                    non_retryable_error_types=["temporal_python.services.kuboard_service.NamespaceAlreadyExistsError"]
+                    non_retryable_error_types=[
+                        "NamespaceAlreadyExistsError"
+                    ]
                 )
             )
         except Exception as e:

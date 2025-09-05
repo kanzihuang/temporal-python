@@ -121,9 +121,9 @@ logging:
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
         f.write(config_content)
         temp_file = f.name
-    
+
     yield temp_file
-    
+
     # Cleanup
     os.unlink(temp_file)
 
@@ -144,23 +144,23 @@ def mock_vim_objects():
     """模拟vSphere对象"""
     mock_datacenter = Mock()
     mock_datacenter.name = "TestDatacenter"
-    
+
     mock_cluster = Mock()
     mock_cluster.name = "TestCluster"
     mock_cluster.resourcePool = Mock()
-    
+
     mock_datastore = Mock()
     mock_datastore.name = "TestDatastore"
-    
+
     mock_network = Mock()
     mock_network.name = "TestNetwork"
-    
+
     mock_folder = Mock()
     mock_folder.name = "TestFolder"
-    
+
     mock_vm = Mock()
     mock_vm.name = "test-vm-01"
-    
+
     return {
         'datacenter': mock_datacenter,
         'cluster': mock_cluster,
@@ -185,4 +185,4 @@ def mock_workflow_context():
     """模拟Temporal工作流上下文"""
     with patch('temporalio.workflow.execute_activity') as mock_execute:
         mock_execute.return_value = "test-vm-01"
-        yield mock_execute 
+        yield mock_execute

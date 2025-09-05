@@ -100,7 +100,7 @@ class TestConfigLoader:
         """测试无效的YAML配置"""
         config_file = tmp_path / "invalid.yaml"
         config_file.write_text("invalid: yaml: content: [")
-        
+
         with patch('temporal_python.shared.config.ConfigLoader._instance', None):
             with pytest.raises(Exception):  # YAML解析错误
                 ConfigLoader.load(str(config_file))
@@ -117,10 +117,10 @@ class TestConfigLoader:
                 # 缺少file字段
             }
         }
-        
+
         config_file = tmp_path / "invalid_structure.yaml"
         config_file.write_text(yaml.dump(invalid_config))
-        
+
         with patch('temporal_python.shared.config.ConfigLoader._instance', None):
             with pytest.raises(ValidationError):
                 ConfigLoader.load(str(config_file))
@@ -130,10 +130,10 @@ class TestConfigLoader:
         with patch('temporal_python.shared.config.ConfigLoader._instance', None):
             # 第一次加载
             config1 = ConfigLoader.load(temp_config_file)
-            
+
             # 第二次加载应该返回同一个实例
             config2 = ConfigLoader.load(temp_config_file)
-            
+
             assert config1 is config2
 
     def test_load_with_different_paths(self, sample_app_config, tmp_path):
@@ -141,12 +141,12 @@ class TestConfigLoader:
         # 创建两个不同的配置文件
         config_file1 = tmp_path / "config1.yaml"
         config_file1.write_text(yaml.dump(sample_app_config.model_dump()))
-        
+
         config_file2 = tmp_path / "config2.yaml"
         modified_config = sample_app_config.model_dump()
         modified_config['vmware']['host'] = "different-host"
         config_file2.write_text(yaml.dump(modified_config))
-        
+
         with patch('temporal_python.shared.config.ConfigLoader._instance', None):
             config1 = ConfigLoader.load(str(config_file1))
             # 由于ConfigLoader是单例，第二次加载会返回第一次的结果
@@ -156,7 +156,7 @@ class TestConfigLoader:
         """测试配置文件权限问题"""
         config_file = tmp_path / "permission_test.yaml"
         config_file.write_text(yaml.dump({"vmware": {}, "logging": {}}))
-        
+
         # 模拟权限问题
         with patch('temporal_python.shared.config.open', side_effect=PermissionError("Permission denied")):
             with patch('temporal_python.shared.config.ConfigLoader._instance', None):
@@ -180,12 +180,11 @@ class TestConfigLoader:
           level: "INFO"
           file: "test.log"
         """
-        
+
         config_file = tmp_path / "security_test.yaml"
         config_file.write_text(malicious_yaml)
-        
+
         with patch('temporal_python.shared.config.ConfigLoader._instance', None):
             config = ConfigLoader.load(str(config_file))
             assert isinstance(config, AppConfig)
 
- 

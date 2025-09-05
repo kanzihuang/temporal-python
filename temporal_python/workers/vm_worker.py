@@ -49,7 +49,7 @@ async def main(temporal_host: str, temporal_port: int):
                 task_queue=TEMPORAL_TASK_QUEUE,
                 workflows=[VMCreationWorkflow],
                 activities=[create_vm_activity]
-            ):                
+            ):
                 logger.info(f"Temporal Worker已启动，正在监听任务队列: {TEMPORAL_TASK_QUEUE}")
                 logger.info("按Ctrl+C停止Worker...")
                 # 保持Worker运行

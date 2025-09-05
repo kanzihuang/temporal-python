@@ -157,4 +157,4 @@ class TestVMRequest:
         assert example["memory_gb"] == 4
         assert example["disk_size_gb"] == 40
         assert example["power_on"] is True
-        assert example["notes"] == "Created via Temporal workflow" 
+        assert example["notes"] == "Created via Temporal workflow"

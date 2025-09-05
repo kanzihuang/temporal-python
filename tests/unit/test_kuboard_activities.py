@@ -1,6 +1,7 @@
 import pytest
 import asyncio
 from temporal_python.activities import kuboard_activities
+from temporal_python.activities.kuboard_activities import CreateNamespaceParams, GrantPermissionParams
 
 @pytest.mark.asyncio
 async def test_create_namespace_activity(monkeypatch):
@@ -18,7 +19,8 @@ async def test_create_namespace_activity(monkeypatch):
             'secret_key': 'test-secret-key'
         })()
     }))
-    result = await kuboard_activities.create_namespace_activity('site1', 'c1', 'ns1')
+    params = CreateNamespaceParams(kuboard_site_name='site1', cluster_id='c1', namespace='ns1')
+    result = await kuboard_activities.create_namespace_activity(params)
     assert result is True
     assert called['args'] == ('c1', 'ns1')
 
@@ -38,7 +40,14 @@ async def test_grant_permission_activity(monkeypatch):
             'secret_key': 'test-secret-key'
         })()
     }))
-    result = await kuboard_activities.grant_permission_activity('site1', 'c1', 'ns1', 'user', 'admin')
+    params = GrantPermissionParams(
+        kuboard_site_name='site1',
+        cluster_id='c1',
+        namespace='ns1',
+        username='user',
+        role='admin'
+    )
+    result = await kuboard_activities.grant_permission_activity(params)
     assert result is True
     assert called['args'] == ('c1', 'ns1', 'user', 'admin')
 

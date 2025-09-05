@@ -65,7 +65,7 @@ async def get_temporal_client() -> Client:
     """获取 Temporal 客户端连接"""
     temporal_host = os.getenv("TEMPORAL_HOST", "localhost")
     temporal_port = int(os.getenv("TEMPORAL_PORT", "7233"))
-    
+
     try:
         client = await asyncio.wait_for(
             Client.connect(f"{temporal_host}:{temporal_port}"),

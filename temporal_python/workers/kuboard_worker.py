@@ -14,7 +14,7 @@ async def main():
         logger.info("正在连接到 Temporal 服务器...")
         client = await get_temporal_client()
         logger.info("成功连接到 Temporal 服务器")
-        
+
         logger.info("正在启动 kuboard worker...")
         worker = Worker(
             client,
@@ -22,11 +22,11 @@ async def main():
             workflows=[KuboardNamespaceAuthorize, KuboardNamespaceCreate],
             activities=[create_namespace_activity, grant_permission_activity],
         )
-        
+
         logger.info("kuboard worker 已启动，正在监听任务队列: kuboard")
         logger.info("按 Ctrl+C 停止 worker...")
         await worker.run()
-        
+
     except ConnectionError as e:
         logger.error(f"连接 Temporal 服务器失败: {e}")
         logger.error("请确保 Temporal 服务器正在运行")
