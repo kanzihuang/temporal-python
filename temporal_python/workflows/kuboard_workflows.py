@@ -16,16 +16,7 @@ class GrantPermissionParams:
     kuboard_site_name: str
     cluster_id: str
     namespace: str
-    username: str
-    role: str
-
-
-@dataclass
-class KuboardNamespaceAuthorizeParams:
-    kuboard_site_name: str
-    cluster_id: str
-    namespace: str
-    username: str
+    ldap_user_name: str
     role: str
 
 
@@ -34,25 +25,18 @@ class KuboardNamespaceCreateParams:
     kuboard_site_name: str
     cluster_id: str
     namespace: str
-    username: str
+    ldap_user_name: str
     role: str
 
 
 @workflow.defn
 class KuboardNamespaceAuthorize:
     @workflow.run
-    async def run(self, params: KuboardNamespaceAuthorizeParams):
+    async def run(self, params: GrantPermissionParams):
         # 仅授权，要求命名空间已存在
-        grant_params = GrantPermissionParams(
-            kuboard_site_name=params.kuboard_site_name,
-            cluster_id=params.cluster_id,
-            namespace=params.namespace,
-            username=params.username,
-            role=params.role
-        )
         await workflow.execute_activity(
             "grant_permission_activity",
-            grant_params,
+            params,
             schedule_to_close_timeout=timedelta(seconds=30),
             retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=1),
@@ -101,7 +85,7 @@ class KuboardNamespaceCreate:
             kuboard_site_name=params.kuboard_site_name,
             cluster_id=params.cluster_id,
             namespace=params.namespace,
-            username=params.username,
+            ldap_user_name=params.ldap_user_name,
             role=params.role
         )
         await workflow.execute_activity(

@@ -1,7 +1,5 @@
 from dataclasses import dataclass
-from datetime import timedelta
 from temporalio import activity
-from temporalio.common import RetryPolicy
 from temporal_python.services.kuboard_service import (
     KuBoardService,
     NamespaceAlreadyExistsError,
@@ -10,6 +8,7 @@ from temporal_python.services.kuboard_service import (
     KuboardNetworkError
 )
 from temporal_python.shared.config import ConfigLoader
+from temporal_python.workflows.kuboard_workflows import GrantPermissionParams
 
 
 @dataclass
@@ -17,15 +16,6 @@ class CreateNamespaceParams:
     kuboard_site_name: str
     cluster_id: str
     namespace: str
-
-
-@dataclass
-class GrantPermissionParams:
-    kuboard_site_name: str
-    cluster_id: str
-    namespace: str
-    username: str
-    role: str
 
 
 @activity.defn
@@ -69,7 +59,7 @@ async def grant_permission_activity(params: GrantPermissionParams) -> bool:
         service.grant_permission(
             params.cluster_id,
             params.namespace,
-            params.username,
+            params.ldap_user_name,
             params.role
         )
 

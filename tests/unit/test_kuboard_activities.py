@@ -28,8 +28,8 @@ async def test_create_namespace_activity(monkeypatch):
 async def test_grant_permission_activity(monkeypatch):
     called = {}
     class FakeService:
-        def grant_permission(self, cluster_id, namespace, username, role):
-            called['args'] = (cluster_id, namespace, username, role)
+        def grant_permission(self, cluster_id, namespace, ldap_user_name, role):
+            called['args'] = (cluster_id, namespace, ldap_user_name, role)
             return True
     monkeypatch.setattr(kuboard_activities, 'KuBoardService', lambda **kwargs: FakeService())
     monkeypatch.setattr(kuboard_activities, 'ConfigLoader', type('MockConfigLoader', (), {
@@ -44,7 +44,7 @@ async def test_grant_permission_activity(monkeypatch):
         kuboard_site_name='site1',
         cluster_id='c1',
         namespace='ns1',
-        username='user',
+        ldap_user_name='user',
         role='admin'
     )
     result = await kuboard_activities.grant_permission_activity(params)
