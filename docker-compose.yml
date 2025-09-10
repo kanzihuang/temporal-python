@@ -1,0 +1,136 @@
+version: '3.8'
+
+services:
+  # 基础镜像构建
+  base:
+    build:
+      context: .
+      dockerfile: docker/base/Dockerfile
+    image: temporal-python-base:latest
+    container_name: temporal-python-base
+
+  # Kuboard 工作流服务
+  kuboard-worker:
+    build:
+      context: .
+      dockerfile: docker/kuboard/Dockerfile
+    image: temporal-python-kuboard:latest
+    container_name: kuboard-worker
+    restart: unless-stopped
+    environment:
+      # Temporal 服务器配置
+      - TEMPORAL_HOST=temporal-server:7233
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=kuboard
+      
+      # Kuboard 服务配置
+      - KUBOARD_BASE_URL=http://kuboard.test.com:8089
+      - KUBOARD_USERNAME=admin
+      - KUBOARD_ACCESS_KEY=your_access_key
+      - KUBOARD_SECRET_KEY=your_secret_key
+      
+      # 日志配置
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    volumes:
+      # 挂载配置文件（如果需要）
+      - ./config:/app/config:ro
+    networks:
+      - temporal-network
+    depends_on:
+      - temporal-server
+      - base
+    healthcheck:
+      test: ["CMD", "python", "-c", "import temporal_python.workers.kuboard_worker"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # VM 工作流服务
+  vm-worker:
+    build:
+      context: .
+      dockerfile: docker/vm/Dockerfile
+    image: temporal-python-vm:latest
+    container_name: vm-worker
+    restart: unless-stopped
+    environment:
+      # Temporal 服务器配置
+      - TEMPORAL_HOST=temporal-server:7233
+      - TEMPORAL_NAMESPACE=default
+      - TEMPORAL_TASK_QUEUE=vm
+      
+      # VMware 服务配置
+      - VMWARE_HOST=your_vmware_host
+      - VMWARE_USERNAME=your_username
+      - VMWARE_PASSWORD=your_password
+      - VMWARE_DATACENTER=your_datacenter
+      
+      # 日志配置
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+    volumes:
+      # 挂载配置文件（如果需要）
+      - ./config:/app/config:ro
+    networks:
+      - temporal-network
+    depends_on:
+      - temporal-server
+      - base
+    healthcheck:
+      test: ["CMD", "python", "-c", "import temporal_python.workers.vm_worker"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Temporal 服务器（开发环境）
+  temporal-server:
+    image: temporalio/auto-setup:latest
+    container_name: temporal-server
+    ports:
+      - "7233:7233"
+      - "8080:8080"
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    networks:
+      - temporal-network
+
+  # PostgreSQL 数据库（Temporal 使用）
+  postgresql:
+    image: postgres:13
+    container_name: temporal-postgresql
+    environment:
+      - POSTGRES_DB=temporal
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - temporal-network
+
+  # Temporal Web UI
+  temporal-ui:
+    image: temporalio/ui:latest
+    container_name: temporal-ui
+    ports:
+      - "8081:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal-server:7233
+    networks:
+      - temporal-network
+    depends_on:
+      - temporal-server
+
+networks:
+  temporal-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
