@@ -2,10 +2,10 @@
 FROM temporal-python-base:latest
 
 # 复制 VM 相关代码
-COPY temporal_python/activities/vm_activities.py ./temporal_python/activities/
-COPY temporal_python/workflows/vm_workflows.py ./temporal_python/workflows/
-COPY temporal_python/workers/vm_worker.py ./temporal_python/workers/
-COPY temporal_python/clients/start_vm_workflow.py ./temporal_python/clients/
+COPY src/activities/vm_activities.py ./src/activities/
+COPY src/workflows/vm_workflows.py ./src/workflows/
+COPY src/workers/vm_worker.py ./src/workers/
+COPY src/clients/start_vm_workflow.py ./src/clients/
 
 # 设置工作流特定环境变量
 ENV WORKER_TYPE=vm

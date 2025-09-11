@@ -2,9 +2,9 @@
 FROM temporal-python-base:latest
 
 # 复制 Kuboard 相关代码
-COPY temporal_python/activities/kuboard_activities.py ./temporal_python/activities/
-COPY temporal_python/workflows/kuboard_workflows.py ./temporal_python/workflows/
-COPY temporal_python/workers/kuboard_worker.py ./temporal_python/workers/
+COPY src/activities/kuboard_activities.py ./src/activities/
+COPY src/workflows/kuboard_workflows.py ./src/workflows/
+COPY src/workers/kuboard_worker.py ./src/workers/
 
 # 设置工作流特定环境变量
 ENV WORKER_TYPE=kuboard

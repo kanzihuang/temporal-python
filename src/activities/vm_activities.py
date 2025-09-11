@@ -1,9 +1,9 @@
 import logging
 from temporalio import activity
 from temporalio.common import RetryPolicy
-from temporal_python.services.vm_service import VMwareService
-from temporal_python.shared.schemas import VMRequest
-from temporal_python.shared.config import config
+from src.services.vm_service import VMwareService
+from src.shared.schemas import VMRequest
+from src.shared.config import config
 
 # 配置日志
 logger = logging.getLogger(__name__)

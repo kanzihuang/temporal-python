@@ -7,9 +7,9 @@ from temporalio.client import Client
 
 
 from temporalio.worker import Worker
-from temporal_python.workflows.vm_workflows import VMCreationWorkflow
-from temporal_python.activities.vm_activities import create_vm_activity
-from temporal_python.shared.config import config
+from src.workflows.vm_workflows import VMCreationWorkflow
+from src.activities.vm_activities import create_vm_activity
+from src.shared.config import config
 
 # 配置日志
 logging.basicConfig(level=logging.DEBUG)

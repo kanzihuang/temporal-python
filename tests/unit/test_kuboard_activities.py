@@ -1,7 +1,7 @@
 import pytest
 import asyncio
-from temporal_python.activities import kuboard_activities
-from temporal_python.activities.kuboard_activities import CreateNamespaceParams, GrantPermissionParams
+from src.activities import kuboard_activities
+from src.activities.kuboard_activities import CreateNamespaceParams, GrantPermissionParams
 
 @pytest.mark.asyncio
 async def test_create_namespace_activity(monkeypatch):

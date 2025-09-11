@@ -1,17 +1,17 @@
 """
-Unit tests for temporal_python.workflows.vm_workflows module.
+Unit tests for src.workflows.vm_workflows module.
 """
 import pytest
 from unittest.mock import Mock, patch, AsyncMock, ANY
 from datetime import timedelta
-from temporal_python.workflows.vm_workflows import VMCreationWorkflow
-from temporal_python.shared.schemas import VMRequest
+from src.workflows.vm_workflows import VMCreationWorkflow
+from src.shared.schemas import VMRequest
 
 
 class TestVMCreationWorkflow:
     """Test VM creation workflow."""
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
+    @patch('src.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_success(self, mock_execute_activity, sample_vm_request):
         """测试工作流成功执行"""
         # 模拟活动执行成功
@@ -35,7 +35,7 @@ class TestVMCreationWorkflow:
         assert called_args[1]["task_queue"] == "vmware"
         assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
+    @patch('src.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_with_different_vm_requests(self, mock_execute_activity):
         """测试不同VM请求的工作流执行"""
         vm_requests = [
@@ -63,7 +63,7 @@ class TestVMCreationWorkflow:
             assert called_args[1]["task_queue"] == "vmware"
             assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_run_activity_failure(self, mock_execute_activity, sample_vm_request):
         """测试活动执行失败"""
         # 模拟活动执行失败
@@ -79,7 +79,7 @@ class TestVMCreationWorkflow:
         # 验证异常信息
         assert "Activity execution failed" in str(exc_info.value)
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_run_with_retry_policy(self, mock_execute_activity, sample_vm_request):
         """测试重试策略配置"""
         mock_execute_activity.return_value = "test-vm-01"
@@ -96,7 +96,7 @@ class TestVMCreationWorkflow:
         assert retry_policy.maximum_interval == timedelta(seconds=60)
         assert retry_policy.maximum_attempts == 5
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_run_timeout_configuration(self, mock_execute_activity, sample_vm_request):
         """测试超时配置"""
         mock_execute_activity.return_value = "test-vm-01"
@@ -111,7 +111,7 @@ class TestVMCreationWorkflow:
         # 验证超时配置
         assert timeout == timedelta(minutes=30)
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_run_task_queue_configuration(self, mock_execute_activity, sample_vm_request):
         """测试任务队列配置"""
         mock_execute_activity.return_value = "test-vm-01"
@@ -126,7 +126,7 @@ class TestVMCreationWorkflow:
         # 验证任务队列配置
         assert task_queue == "vmware"
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
+    @patch('src.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_with_complex_vm_request(self, mock_execute_activity):
         """测试复杂VM请求的工作流执行"""
         complex_request = VMRequest(
@@ -153,7 +153,7 @@ class TestVMCreationWorkflow:
         assert called_args[1]["task_queue"] == "vmware"
         assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_run_activity_returns_different_vm_name(self, mock_execute_activity, sample_vm_request):
         """测试活动返回不同的VM名称"""
         # 模拟活动返回不同的VM名称
@@ -166,7 +166,7 @@ class TestVMCreationWorkflow:
         assert result == "different-vm-name"
         assert result != sample_vm_request.vm_name
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_run_multiple_executions(self, mock_execute_activity, sample_vm_request):
         """测试多次执行工作流"""
         mock_execute_activity.return_value = "test-vm-01"
@@ -186,7 +186,7 @@ class TestVMCreationWorkflow:
         # 验证活动被调用了3次
         assert mock_execute_activity.call_count == 3
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
+    @patch('src.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_with_minimal_vm_request(self, mock_execute_activity):
         """测试最小VM请求的工作流执行"""
         minimal_request = VMRequest(
@@ -210,7 +210,7 @@ class TestVMCreationWorkflow:
         assert called_args[1]["task_queue"] == "vmware"
         assert hasattr(called_args[1]["retry_policy"], "maximum_attempts")
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
+    @patch('src.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_workflow_defn_attributes(self, mock_execute_activity):
         """测试工作流定义属性"""
         # 验证工作流类有正确的装饰器
@@ -220,7 +220,7 @@ class TestVMCreationWorkflow:
         workflow_defn = VMCreationWorkflow.__temporal_workflow_defn__
         assert workflow_defn.name == "vm_creation_workflow"
 
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
+    @patch('src.workflows.vm_workflows.workflow.execute_activity', new_callable=AsyncMock)
     async def test_run_method_attributes(self, mock_execute_activity):
         """测试run方法的属性"""
         # 验证run方法有正确的装饰器
@@ -238,7 +238,7 @@ class TestVMCreationWorkflow:
 
     def test_workflow_decorator_properties(self):
         """测试工作流装饰器属性"""
-        from temporal_python.workflows.vm_workflows import create_vm_workflow
+        from src.workflows.vm_workflows import create_vm_workflow
         assert callable(create_vm_workflow)
         assert create_vm_workflow.__name__ == "create_vm_workflow"
         import asyncio

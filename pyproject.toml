@@ -6,7 +6,7 @@ authors = [{ name = "Wanli"}]
 requires-python = ">=3.9"
 
 [tool.poetry]
-packages = [{ include = "temporal_python" }]
+packages = [{ include = "src" }]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -47,9 +47,9 @@ strict = true
 disable_error_code = ["import"]
 
 [tool.pytest.ini_options]
-pythonpath = "."
+pythonpath = ["src"]
 testpaths = ["tests"]
-addopts = "--cov=temporal_python --cov-report=term-missing"
+addopts = "--cov=src --cov-report=term-missing"
 asyncio_mode = "auto"
 
 [tool.flake8]

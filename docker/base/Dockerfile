@@ -27,8 +27,8 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry install --only=main && rm -rf $POETRY_CACHE_DIR
 
 # 复制共享代码
-COPY temporal_python/shared/ ./temporal_python/shared/
-COPY temporal_python/services/ ./temporal_python/services/
+COPY src/shared/ ./src/shared/
+COPY src/services/ ./src/services/
 COPY config/ ./config/
 
 # 创建非 root 用户

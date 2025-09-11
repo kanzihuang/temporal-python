@@ -1,5 +1,5 @@
 """
-Unit tests for temporal_python.shared.config module.
+Unit tests for src.shared.config module.
 """
 import pytest
 import tempfile
@@ -7,7 +7,7 @@ import yaml
 from pathlib import Path
 from unittest.mock import patch, mock_open
 from pydantic import ValidationError
-from temporal_python.shared.config import (
+from src.shared.config import (
     VMwareConfig, LoggingConfig, AppConfig, ConfigLoader
 )
 
@@ -83,7 +83,7 @@ class TestConfigLoader:
 
     def test_load_config_success(self, temp_config_file, sample_app_config):
         """测试成功加载配置"""
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             config = ConfigLoader.load(temp_config_file)
             assert isinstance(config, AppConfig)
             assert config.vmware.host == "test-vcenter.example.com"
@@ -91,7 +91,7 @@ class TestConfigLoader:
 
     def test_load_config_file_not_found(self):
         """测试配置文件不存在"""
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             with pytest.raises(FileNotFoundError) as exc_info:
                 ConfigLoader.load("nonexistent_config.yaml")
             assert "Config file not found" in str(exc_info.value)
@@ -101,7 +101,7 @@ class TestConfigLoader:
         config_file = tmp_path / "invalid.yaml"
         config_file.write_text("invalid: yaml: content: [")
 
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             with pytest.raises(Exception):  # YAML解析错误
                 ConfigLoader.load(str(config_file))
 
@@ -121,13 +121,13 @@ class TestConfigLoader:
         config_file = tmp_path / "invalid_structure.yaml"
         config_file.write_text(yaml.dump(invalid_config))
 
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             with pytest.raises(ValidationError):
                 ConfigLoader.load(str(config_file))
 
     def test_singleton_pattern(self, temp_config_file):
         """测试单例模式"""
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             # 第一次加载
             config1 = ConfigLoader.load(temp_config_file)
 
@@ -147,7 +147,7 @@ class TestConfigLoader:
         modified_config['vmware']['host'] = "different-host"
         config_file2.write_text(yaml.dump(modified_config))
 
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             config1 = ConfigLoader.load(str(config_file1))
             # 由于ConfigLoader是单例，第二次加载会返回第一次的结果
             assert config1.vmware.host == "test-vcenter.example.com"
@@ -158,8 +158,8 @@ class TestConfigLoader:
         config_file.write_text(yaml.dump({"vmware": {}, "logging": {}}))
 
         # 模拟权限问题
-        with patch('temporal_python.shared.config.open', side_effect=PermissionError("Permission denied")):
-            with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.open', side_effect=PermissionError("Permission denied")):
+            with patch('src.shared.config.ConfigLoader._instance', None):
                 with pytest.raises(PermissionError):
                     ConfigLoader.load(str(config_file))
 
@@ -176,6 +176,8 @@ class TestConfigLoader:
           datastore: "test-ds"
           network: "test-network"
           folder: "test-folder"
+        kuboard:
+          sites: []
         logging:
           level: "INFO"
           file: "test.log"
@@ -184,7 +186,7 @@ class TestConfigLoader:
         config_file = tmp_path / "security_test.yaml"
         config_file.write_text(malicious_yaml)
 
-        with patch('temporal_python.shared.config.ConfigLoader._instance', None):
+        with patch('src.shared.config.ConfigLoader._instance', None):
             config = ConfigLoader.load(str(config_file))
             assert isinstance(config, AppConfig)
 

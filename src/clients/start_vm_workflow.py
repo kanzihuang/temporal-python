@@ -4,9 +4,9 @@ import argparse
 import os
 from temporalio.client import Client
 from temporalio.common import WorkflowIDReusePolicy
-from temporal_python.workflows.vm_workflows import VMCreationWorkflow
-from temporal_python.shared.schemas import VMRequest
-from temporal_python.shared.config import config
+from src.workflows.vm_workflows import VMCreationWorkflow
+from src.shared.schemas import VMRequest
+from src.shared.config import config
 from datetime import timedelta
 
 # 配置日志

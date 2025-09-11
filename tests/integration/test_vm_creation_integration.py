@@ -4,16 +4,16 @@ Integration tests for VM creation workflow and activities.
 import pytest
 import asyncio
 from unittest.mock import Mock, patch, AsyncMock
-from temporal_python.workflows.vm_workflows import VMCreationWorkflow
-from temporal_python.activities.vm_activities import create_vm_activity
-from temporal_python.shared.schemas import VMRequest
+from src.workflows.vm_workflows import VMCreationWorkflow
+from src.activities.vm_activities import create_vm_activity
+from src.shared.schemas import VMRequest
 
 
 class TestVMCreationIntegration:
     """Integration tests for VM creation workflow and activities."""
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_full_workflow_to_activity_integration(self, mock_execute_activity, mock_vmware_service_class, sample_vm_request):
         """测试完整的工作流到活动集成"""
         # 模拟VMwareService
@@ -45,8 +45,8 @@ class TestVMCreationIntegration:
         # 验证VMwareService被正确调用
         mock_vmware_service.create_vm.assert_called_with(sample_vm_request)
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_with_different_vm_configurations(self, mock_execute_activity, mock_vmware_service_class):
         """测试不同VM配置的集成"""
         configurations = [
@@ -93,8 +93,8 @@ class TestVMCreationIntegration:
             assert workflow_result == activity_result == config["vm_name"]
             mock_vmware_service.create_vm.assert_called_with(request)
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_error_handling(self, mock_execute_activity, mock_vmware_service_class, sample_vm_request):
         """测试集成错误处理"""
         # 模拟VMwareService抛出异常
@@ -116,8 +116,8 @@ class TestVMCreationIntegration:
             await create_vm_activity(sample_vm_request)
         assert "创建虚拟机失败: Integration test error" in str(exc_info.value)
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_retry_mechanism(self, mock_execute_activity, mock_vmware_service_class, sample_vm_request):
         """测试集成重试机制"""
         # 模拟VMwareService第一次失败，第二次成功
@@ -142,8 +142,8 @@ class TestVMCreationIntegration:
         result = await create_vm_activity(sample_vm_request)
         assert result == "test-vm-01"
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_data_flow(self, mock_execute_activity, mock_vmware_service_class):
         """测试集成数据流"""
         # 创建复杂的VM请求
@@ -188,8 +188,8 @@ class TestVMCreationIntegration:
         assert call_args.power_on is True
         assert call_args.notes == "Integration test VM"
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_concurrent_executions(self, mock_execute_activity, mock_vmware_service_class):
         """测试集成并发执行"""
         # 创建多个请求
@@ -222,8 +222,8 @@ class TestVMCreationIntegration:
         # 验证所有请求都被处理
         assert mock_vmware_service.create_vm.call_count == 3
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_timeout_handling(self, mock_execute_activity, mock_vmware_service_class, sample_vm_request):
         """测试集成超时处理"""
         # 模拟VMwareService超时
@@ -245,8 +245,8 @@ class TestVMCreationIntegration:
             await workflow.run(sample_vm_request)
         assert "Activity timed out" in str(exc_info.value)
 
-    @patch('temporal_python.activities.vm_activities.VMwareService')
-    @patch('temporal_python.workflows.vm_workflows.workflow.execute_activity')
+    @patch('src.activities.vm_activities.VMwareService')
+    @patch('src.workflows.vm_workflows.workflow.execute_activity')
     async def test_integration_resource_validation(self, mock_execute_activity, mock_vmware_service_class):
         """测试集成资源验证"""
         # 测试边界值

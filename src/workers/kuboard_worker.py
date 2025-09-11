@@ -1,9 +1,9 @@
 import asyncio
 import logging
 from temporalio.worker import Worker
-from temporal_python.workflows.kuboard_workflows import KuboardNamespaceAuthorize, KuboardNamespaceCreate
-from temporal_python.activities.kuboard_activities import create_namespace_activity, grant_permission_activity
-from temporal_python.shared.config import get_temporal_client
+from src.workflows.kuboard_workflows import KuboardNamespaceAuthorize, KuboardNamespaceCreate
+from src.activities.kuboard_activities import create_namespace_activity, grant_permission_activity
+from src.shared.config import get_temporal_client
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)

@@ -1,14 +1,14 @@
 from dataclasses import dataclass
 from temporalio import activity
-from temporal_python.services.kuboard_service import (
+from src.services.kuboard_service import (
     KuBoardService,
     NamespaceAlreadyExistsError,
     NamespaceNotFoundError,
     KuboardAuthError,
     KuboardNetworkError
 )
-from temporal_python.shared.config import ConfigLoader
-from temporal_python.workflows.kuboard_workflows import GrantPermissionParams
+from src.shared.config import ConfigLoader
+from src.workflows.kuboard_workflows import GrantPermissionParams
 
 
 @dataclass

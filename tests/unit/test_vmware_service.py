@@ -1,12 +1,12 @@
 """
-Unit tests for temporal_python.services.vmware_service module.
+Unit tests for src.services.vmware_service module.
 """
 import pytest
 import ssl
 from unittest.mock import Mock, patch, MagicMock, ANY
 from pyVmomi import vim
-from temporal_python.services.vmware_service import VMwareService
-from temporal_python.shared.schemas import VMRequest
+from src.services.vmware_service import VMwareService
+from src.shared.schemas import VMRequest
 
 
 class TestVMwareService:
@@ -18,8 +18,8 @@ class TestVMwareService:
         assert service.connection is None
         assert service.content is None
 
-    @patch('temporal_python.services.vmware_service.SmartConnect')
-    @patch('temporal_python.services.vmware_service.config')
+    @patch('src.services.vmware_service.SmartConnect')
+    @patch('src.services.vmware_service.config')
     def test_connect_success(self, mock_config, mock_smart_connect, mock_vmware_connection):
         """测试成功连接到VMware"""
         mock_connect, mock_connection, mock_content = mock_vmware_connection
@@ -46,7 +46,7 @@ class TestVMwareService:
         assert service.connection == mock_connection
         assert service.content == mock_content
 
-    @patch('temporal_python.services.vmware_service.SmartConnect')
+    @patch('src.services.vmware_service.SmartConnect')
     def test_connect_failure(self, mock_smart_connect):
         """测试连接失败"""
         mock_smart_connect.return_value = None
@@ -56,7 +56,7 @@ class TestVMwareService:
             service.connect()
         assert "无法连接到VMware vCenter服务器" in str(exc_info.value)
 
-    @patch('temporal_python.services.vmware_service.SmartConnect')
+    @patch('src.services.vmware_service.SmartConnect')
     def test_connect_exception(self, mock_smart_connect):
         """测试连接异常"""
         mock_smart_connect.side_effect = Exception("Connection failed")
@@ -78,7 +78,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.datacenter = "TestDatacenter"
             result = service._get_datacenter()
 
@@ -97,7 +97,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.datacenter = "TestDatacenter"
             with pytest.raises(Exception) as exc_info:
                 service._get_datacenter()
@@ -113,7 +113,7 @@ class TestVMwareService:
 
         service = VMwareService()
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.cluster = "TestCluster"
             result = service._get_cluster(mock_datacenter)
 
@@ -131,7 +131,7 @@ class TestVMwareService:
 
         service = VMwareService()
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.cluster = "TestCluster"
             with pytest.raises(Exception) as exc_info:
                 service._get_cluster(mock_datacenter)
@@ -152,7 +152,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.datastore = "TestDatastore"
             result = service._get_datastore()
 
@@ -173,7 +173,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.datastore = "TestDatastore"
             with pytest.raises(Exception) as exc_info:
                 service._get_datastore()
@@ -194,7 +194,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.network = "TestNetwork"
             result = service._get_network()
 
@@ -224,7 +224,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.folder = "Datacenter01/vm/Workloads"  # 移除开头的斜杠
             # 直接 mock _get_vm_folder 方法
             with patch.object(service, '_get_vm_folder', return_value=mock_folder3):
@@ -244,13 +244,13 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('temporal_python.services.vmware_service.config') as mock_config:
+        with patch('src.services.vmware_service.config') as mock_config:
             mock_config.vmware.folder = "/Datacenter01/vm/Workloads"
             with pytest.raises(Exception) as exc_info:
                 service._get_vm_folder()
             assert "文件夹路径 /Datacenter01/vm/Workloads 未找到" in str(exc_info.value)
 
-    @patch('temporal_python.services.vmware_service.Disconnect')
+    @patch('src.services.vmware_service.Disconnect')
     def test_create_vm_success(self, mock_disconnect, mock_vmware_connection,
                               mock_vim_objects, sample_vm_request):
         """测试成功创建VM"""
@@ -298,7 +298,7 @@ class TestVMwareService:
             assert result == sample_vm_request.vm_name
             mock_disconnect.assert_called_once_with(mock_connection)
 
-    @patch('temporal_python.services.vmware_service.Disconnect')
+    @patch('src.services.vmware_service.Disconnect')
     def test_create_vm_task_failure(self, mock_disconnect, mock_vmware_connection,
                                    mock_vim_objects, sample_vm_request):
         """测试VM创建任务失败"""

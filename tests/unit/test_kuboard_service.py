@@ -1,7 +1,7 @@
 import pytest
 import requests
 from unittest.mock import Mock, patch
-from temporal_python.services.kuboard_service import (
+from src.services.kuboard_service import (
     KuBoardService,
     NamespaceAlreadyExistsError,
     NamespaceCreationError,

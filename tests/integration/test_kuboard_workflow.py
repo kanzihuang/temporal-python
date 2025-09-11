@@ -1,5 +1,5 @@
 import pytest
-from temporal_python.workflows.kuboard_workflows import (
+from src.workflows.kuboard_workflows import (
     KuboardNamespaceAuthorize, GrantPermissionParams,
     KuboardNamespaceCreate, KuboardNamespaceCreateParams
 )

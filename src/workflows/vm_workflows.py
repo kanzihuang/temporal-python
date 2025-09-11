@@ -1,7 +1,7 @@
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 from datetime import timedelta
-from temporal_python.shared.schemas import VMRequest
+from src.shared.schemas import VMRequest
 
 @workflow.defn(name="vm_creation_workflow")
 class VMCreationWorkflow:

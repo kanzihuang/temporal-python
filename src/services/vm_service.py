@@ -3,8 +3,8 @@ import logging
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
 from typing import Optional
-from temporal_python.shared.config import config
-from temporal_python.shared.schemas import VMRequest
+from src.shared.config import config
+from src.shared.schemas import VMRequest
 
 # 配置日志
 logger = logging.getLogger(__name__)

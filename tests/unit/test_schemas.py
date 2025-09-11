@@ -1,9 +1,9 @@
 """
-Unit tests for temporal_python.shared.schemas module.
+Unit tests for src.shared.schemas module.
 """
 import pytest
 from pydantic import ValidationError
-from temporal_python.shared.schemas import VMRequest
+from src.shared.schemas import VMRequest
 
 
 class TestVMRequest:

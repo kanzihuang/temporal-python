@@ -6,8 +6,8 @@ import tempfile
 import yaml
 from pathlib import Path
 from unittest.mock import Mock, patch
-from temporal_python.shared.schemas import VMRequest
-from temporal_python.shared.config import VMwareConfig, LoggingConfig, AppConfig, KuboardConfig, KuboardSiteConfig
+from src.shared.schemas import VMRequest
+from src.shared.config import VMwareConfig, LoggingConfig, AppConfig, KuboardConfig, KuboardSiteConfig
 import os
 
 
@@ -54,6 +54,7 @@ def sample_logging_config():
 def sample_app_config(sample_vmware_config, sample_logging_config):
     """提供完整的应用配置数据用于测试"""
     return AppConfig(
+        kuboard=KuboardConfig(sites=[]),
         vmware=sample_vmware_config,
         logging=sample_logging_config
     )
@@ -96,7 +97,7 @@ def temp_config_file():
     """Create a temporary config file for testing"""
     config_content = """
 vmware:
-  host: "test-host"
+  host: "test-vcenter.example.com"
   port: 443
   username: "test-user"
   password: "test-pass"
@@ -131,7 +132,7 @@ logging:
 @pytest.fixture
 def mock_vmware_connection():
     """模拟VMware连接"""
-    with patch('temporal_python.services.vmware_service.SmartConnect') as mock_connect:
+    with patch('src.services.vmware_service.SmartConnect') as mock_connect:
         mock_connection = Mock()
         mock_content = Mock()
         mock_connection.RetrieveContent.return_value = mock_content
