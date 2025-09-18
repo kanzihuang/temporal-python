@@ -29,7 +29,6 @@ RUN poetry install --only=main && rm -rf $POETRY_CACHE_DIR
 # 复制共享代码
 COPY src/shared/ ./src/shared/
 COPY src/services/ ./src/services/
-COPY config/ ./config/
 
 # 创建非 root 用户
 RUN groupadd -r appuser && useradd -r -g appuser appuser
