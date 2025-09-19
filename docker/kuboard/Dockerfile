@@ -1,7 +1,11 @@
 # Kuboard 工作流镜像
 FROM temporal-python-base:latest
 
+# 复制共享代码
+COPY src/shared/ ./src/shared/
+
 # 复制 Kuboard 相关代码
+COPY src/services/kuboard_service.py ./src/services/
 COPY src/activities/kuboard_activities.py ./src/activities/
 COPY src/workflows/kuboard_workflows.py ./src/workflows/
 COPY src/workers/kuboard_worker.py ./src/workers/

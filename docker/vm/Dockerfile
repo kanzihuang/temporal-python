@@ -1,7 +1,11 @@
 # VM 工作流镜像
 FROM temporal-python-base:latest
 
+# 复制共享代码
+COPY src/shared/ ./src/shared/
+
 # 复制 VM 相关代码
+COPY src/services/vm_service.py ./src/services/
 COPY src/activities/vm_activities.py ./src/activities/
 COPY src/workflows/vm_workflows.py ./src/workflows/
 COPY src/workers/vm_worker.py ./src/workers/

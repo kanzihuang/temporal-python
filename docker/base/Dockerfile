@@ -24,11 +24,7 @@ RUN pip install poetry
 COPY pyproject.toml poetry.lock ./
 
 # 安装 Python 依赖
-RUN poetry install --only=main && rm -rf $POETRY_CACHE_DIR
-
-# 复制共享代码
-COPY src/shared/ ./src/shared/
-COPY src/services/ ./src/services/
+RUN poetry install --no-root --only=main && rm -rf $POETRY_CACHE_DIR
 
 # 创建非 root 用户
 RUN groupadd -r appuser && useradd -r -g appuser appuser
