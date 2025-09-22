@@ -7,16 +7,45 @@
 - `kuboard-worker-config.yaml`: ConfigMap，包含 kuboard worker 的配置文件
 - `kuboard-worker-deployment.yaml`: Deployment，定义 kuboard worker 的部署配置
 
-## 部署步骤
+## 构建和部署步骤
+
+### 1. 构建镜像
+
+使用构建脚本指定底包地址和版本：
+
+```bash
+# 使用默认参数构建
+./docker/build-kuboard.sh
+
+# 指定底包地址和版本
+BASE_IMAGE_REGISTRY=your-registry.com \
+BASE_IMAGE_NAME=temporal-python-base \
+BASE_IMAGE_TAG=v1.0.0 \
+KUBOARD_IMAGE_REGISTRY=your-registry.com \
+KUBOARD_IMAGE_NAME=kuboard-worker \
+KUBOARD_IMAGE_TAG=v1.0.0 \
+./docker/build-kuboard.sh
+
+# 构建并推送到仓库
+PUSH_IMAGE=true ./docker/build-kuboard.sh
+```
+
+### 2. 部署到 Kubernetes
 
 1. 确保 Kubernetes 集群中已部署 Temporal 服务器（地址：temporal-frontend.temporal:7233）
 
-2. 部署 ConfigMap：
+2. 修改部署文件中的镜像地址（如需要）：
+```bash
+# 编辑 deploy/k8s/kuboard-worker-deployment.yaml
+# 将 your-registry.com/kuboard-worker:latest 改为实际的镜像地址
+```
+
+3. 部署 ConfigMap：
 ```bash
 kubectl apply -f kuboard-worker-config.yaml
 ```
 
-3. 部署 kuboard worker：
+4. 部署 kuboard worker：
 ```bash
 kubectl apply -f kuboard-worker-deployment.yaml
 ```

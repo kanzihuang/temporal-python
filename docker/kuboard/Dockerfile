@@ -1,5 +1,9 @@
 # Kuboard 工作流镜像
-FROM temporal-python-base:latest
+# 支持通过构建参数指定底包地址和版本
+ARG BASE_IMAGE_REGISTRY=your-registry.com
+ARG BASE_IMAGE_NAME=temporal-python-base
+ARG BASE_IMAGE_TAG=latest
+FROM ${BASE_IMAGE_REGISTRY}/${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
 
 # 复制共享代码
 COPY src/shared/ ./src/shared/

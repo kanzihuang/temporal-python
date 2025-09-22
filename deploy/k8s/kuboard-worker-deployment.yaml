@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
         - name: kuboard-worker
-          image: eipwork/kuboard-worker:latest
+          image: your-registry.com/kuboard-worker:latest
           imagePullPolicy: Always
           env:
             # Temporal 服务器连接配置
