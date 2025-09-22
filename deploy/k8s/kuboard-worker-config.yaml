@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kuboard-worker-config
+data:
+  config.yaml: |
+    kuboard:
+      sites:
+        - name: "site1"
+          url: "http://kuboard.test.com:8089"
+          username: "admin"
+          access_key: "4xwi4exitskn"
+          secret_key: "j4na3jmcrdext5xfcr74pdcw4shx7wsd"
+
+    logging:
+      level: "INFO"
+      file: "app.log"

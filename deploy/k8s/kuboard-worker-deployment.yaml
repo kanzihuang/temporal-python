@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuboard-worker
+  labels:
+    app.kubernetes.io/name: kuboard-worker
+    app.kubernetes.io/instance: kuboard-worker
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/part-of: temporal-worker
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kuboard-worker
+      app.kubernetes.io/instance: kuboard-worker
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kuboard-worker
+        app.kubernetes.io/instance: kuboard-worker
+        app.kubernetes.io/version: "1.0.0"
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/part-of: temporal-worker
+        app.kubernetes.io/managed-by: kubectl
+    spec:
+      containers:
+        - name: kuboard-worker
+          image: eipwork/kuboard-worker:latest
+          imagePullPolicy: Always
+          env:
+            # Temporal 服务器连接配置
+            - name: TEMPORAL_HOST
+              value: "temporal-frontend.temporal"
+            - name: TEMPORAL_PORT
+              value: "7233"
+            - name: TEMPORAL_NAMESPACE
+              value: "default"
+            - name: TEMPORAL_TASK_QUEUE
+              value: "kuboard"
+            # 日志配置
+            - name: PYTHONUNBUFFERED
+              value: "1"
+            - name: LOG_LEVEL
+              value: "INFO"
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/config.yaml
+              subPath: config.yaml
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: config
+          configMap:
+            name: kuboard-worker-config
