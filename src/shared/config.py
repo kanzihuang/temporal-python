@@ -32,8 +32,8 @@ class LoggingConfig(BaseModel):
     file: str
 
 class AppConfig(BaseModel):
-    vmware: VMwareConfig
-    kuboard: KuboardConfig
+    vmware: Optional[VMwareConfig] = None
+    kuboard: Optional[KuboardConfig] = None
     logging: LoggingConfig
 
 class ConfigLoader:
@@ -56,6 +56,9 @@ class ConfigLoader:
     def get_kuboard_site(cls, site_name: str) -> KuboardSiteConfig:
         """根据站点名称获取 KuBoard 配置"""
         config = cls.load()
+        if not config.kuboard:
+            raise ValueError("Kuboard configuration not found")
+
         for site in config.kuboard.sites:
             if site.name == site_name:
                 return site
