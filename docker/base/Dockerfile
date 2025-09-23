@@ -15,7 +15,7 @@ ENV POETRY_VIRTUALENVS_CREATE=false
 # 安装系统依赖
 RUN apt-get update && apt-get install -y \
     curl \
-    build-essential \
+    # build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Poetry
