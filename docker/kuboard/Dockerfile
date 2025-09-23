@@ -14,7 +14,7 @@ ENV TASK_QUEUE=kuboard
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import src.workers.kuboard_worker" || exit 1
+    CMD python -c "import temporalio; import src.workers.kuboard_worker" || exit 1
 
 # 启动命令
-CMD ["poetry", "run", "python", "-m", "src.workers.kuboard_worker"]
+CMD ["python", "-m", "src.workers.kuboard_worker"]
