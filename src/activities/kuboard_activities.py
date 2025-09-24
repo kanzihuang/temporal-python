@@ -13,7 +13,6 @@ from src.workflows.kuboard_workflows import GrantPermissionParams
 
 @dataclass
 class CreateNamespaceParams:
-    kuboard_site_name: str
     cluster_id: str
     namespace: str
 
@@ -21,8 +20,8 @@ class CreateNamespaceParams:
 @activity.defn
 async def create_namespace_activity(params: CreateNamespaceParams) -> bool:
     try:
-        # 从配置中获取 KuBoard 站点信息
-        kuboard_site = ConfigLoader.get_kuboard_site(params.kuboard_site_name)
+        # 根据 cluster_id 从配置映射中获取 KuBoard 站点信息
+        kuboard_site = ConfigLoader.get_kuboard_site_by_cluster(params.cluster_id)
         service = KuBoardService(
             base_url=kuboard_site.url,
             username=kuboard_site.username,
@@ -46,8 +45,8 @@ async def create_namespace_activity(params: CreateNamespaceParams) -> bool:
 @activity.defn
 async def grant_permission_activity(params: GrantPermissionParams) -> bool:
     try:
-        # 从配置中获取 KuBoard 站点信息
-        kuboard_site = ConfigLoader.get_kuboard_site(params.kuboard_site_name)
+        # 根据 cluster_id 从配置映射中获取 KuBoard 站点信息
+        kuboard_site = ConfigLoader.get_kuboard_site_by_cluster(params.cluster_id)
         service = KuBoardService(
             base_url=kuboard_site.url,
             username=kuboard_site.username,

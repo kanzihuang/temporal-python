@@ -26,6 +26,8 @@ class KuboardSiteConfig(BaseModel):
 
 class KuboardConfig(BaseModel):
     sites: List[KuboardSiteConfig]
+    # cluster_id 到 kuboard 站点名称的映射
+    clusters: List[dict] = []
 
 class LoggingConfig(BaseModel):
     level: str
@@ -63,6 +65,29 @@ class ConfigLoader:
             if site.name == site_name:
                 return site
         raise ValueError(f"KuBoard site '{site_name}' not found in configuration")
+
+    @classmethod
+    def get_kuboard_site_by_cluster(cls, cluster_id: str) -> KuboardSiteConfig:
+        """根据 cluster_id 获取映射的 KuBoard 站点配置。"""
+        config = cls.load()
+        if not config.kuboard or not getattr(config.kuboard, "clusters", None):
+            raise ValueError(
+                "No kuboard cluster mapping found in configuration. Please add 'kuboard.clusters' mapping and retry."
+            )
+
+        mapped_site_name: Optional[str] = None
+        for item in config.kuboard.clusters:
+            if isinstance(item, dict) and item.get("cluster_id") == cluster_id:
+                mapped_site_name = item.get("kuboard_site_name")
+                if mapped_site_name:
+                    break
+
+        if not mapped_site_name:
+            raise ValueError(
+                f"No kuboard_site_name mapping found for cluster_id '{cluster_id}'. Manual intervention required."
+            )
+
+        return cls.get_kuboard_site(mapped_site_name)
 
 async def get_temporal_client() -> Client:
     """获取 Temporal 客户端连接"""
