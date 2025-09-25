@@ -12,14 +12,14 @@ async def test_create_namespace_activity(monkeypatch):
             return True
     monkeypatch.setattr(kuboard_activities, 'KuBoardService', lambda **kwargs: FakeService())
     monkeypatch.setattr(kuboard_activities, 'ConfigLoader', type('MockConfigLoader', (), {
-        'get_kuboard_site': lambda site_name: type('MockSite', (), {
+        'get_kuboard_site_by_cluster': lambda cluster_id: type('MockSite', (), {
             'url': 'http://test.com',
             'username': 'admin',
             'access_key': 'test-access-key',
             'secret_key': 'test-secret-key'
         })()
     }))
-    params = CreateNamespaceParams(kuboard_site_name='site1', cluster_id='c1', namespace='ns1')
+    params = CreateNamespaceParams(cluster_id='c1', namespace='ns1')
     result = await kuboard_activities.create_namespace_activity(params)
     assert result is True
     assert called['args'] == ('c1', 'ns1')
@@ -33,7 +33,7 @@ async def test_grant_permission_activity(monkeypatch):
             return True
     monkeypatch.setattr(kuboard_activities, 'KuBoardService', lambda **kwargs: FakeService())
     monkeypatch.setattr(kuboard_activities, 'ConfigLoader', type('MockConfigLoader', (), {
-        'get_kuboard_site': lambda site_name: type('MockSite', (), {
+        'get_kuboard_site_by_cluster': lambda cluster_id: type('MockSite', (), {
             'url': 'http://test.com',
             'username': 'admin',
             'access_key': 'test-access-key',
@@ -41,7 +41,6 @@ async def test_grant_permission_activity(monkeypatch):
         })()
     }))
     params = GrantPermissionParams(
-        kuboard_site_name='site1',
         cluster_id='c1',
         namespace='ns1',
         ldap_user_name='user',

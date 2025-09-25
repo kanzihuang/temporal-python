@@ -2,7 +2,6 @@ from datetime import timedelta
 from dataclasses import dataclass
 from temporalio import workflow
 from temporalio.common import RetryPolicy
-from src.shared.config import ConfigLoader
 
 
 @dataclass
@@ -34,13 +33,6 @@ class KuboardNamespaceCreateParams:
 class KuboardNamespaceAuthorize:
     @workflow.run
     async def run(self, params: GrantPermissionParams):
-        # 先校验 cluster 是否能映射到 Kuboard 站点
-        try:
-            _ = ConfigLoader.get_kuboard_site_by_cluster(params.cluster_id)
-        except Exception:
-            # 按要求返回中文提示
-            raise RuntimeError("由于权限不足，系统授权失败，将由运维人员手动授权。")
-
         # 仅授权，要求命名空间已存在
         await workflow.execute_activity(
             "grant_permission_activity",
@@ -61,14 +53,6 @@ class KuboardNamespaceAuthorize:
 class KuboardNamespaceCreate:
     @workflow.run
     async def run(self, params: KuboardNamespaceCreateParams):
-        # 0. 解析 kuboard_site_name（若失败则返回错误，提示人工介入）
-        try:
-            kuboard_site = ConfigLoader.get_kuboard_site_by_cluster(params.cluster_id)
-            kuboard_site_name = kuboard_site.name
-        except Exception as e:
-            # 按要求返回中文提示
-            raise RuntimeError("由于权限不足，系统创建命名空间失败，将由运维人员手动创建命名空间。")
-
         # 1. 创建命名空间（如果已存在则报错）
         try:
             create_params = CreateNamespaceParams(

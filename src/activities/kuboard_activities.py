@@ -38,8 +38,12 @@ async def create_namespace_activity(params: CreateNamespaceParams) -> bool:
         # 命名空间已存在，直接抛出异常（不重试）
         raise
     except Exception as e:
+        # 如果是映射失败（没有对应 Kuboard），返回指定中文提示
+        msg = str(e)
+        if "No kuboard_site_name mapping" in msg or "No kuboard cluster mapping" in msg:
+            raise Exception("由于权限不足，系统创建命名空间失败，将由运维人员手动创建命名空间。")
         # 其他错误，重新抛出异常，让 Temporal 处理重试
-        raise Exception(f"创建命名空间时发生错误: {str(e)}")
+        raise Exception(f"创建命名空间时发生错误: {msg}")
 
 
 @activity.defn
@@ -71,5 +75,9 @@ async def grant_permission_activity(params: GrantPermissionParams) -> bool:
         # 重新抛出，让 Temporal 处理重试
         raise
     except Exception as e:
+        # 如果是映射失败（没有对应 Kuboard），返回指定中文提示
+        msg = str(e)
+        if "No kuboard_site_name mapping" in msg or "No kuboard cluster mapping" in msg:
+            raise Exception("由于权限不足，系统授权失败，将由运维人员手动授权。")
         # 其他错误，重新抛出异常
-        raise Exception(f"授权过程中发生错误: {str(e)}")
+        raise Exception(f"授权过程中发生错误: {msg}")
