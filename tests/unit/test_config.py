@@ -1,15 +1,12 @@
 """
 Unit tests for src.shared.config module.
 """
+
 import pytest
-import tempfile
 import yaml
-from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 from pydantic import ValidationError
-from src.shared.config import (
-    VMwareConfig, LoggingConfig, AppConfig, ConfigLoader
-)
+from src.shared.config import VMwareConfig, LoggingConfig, AppConfig, ConfigLoader
 
 
 class TestVMwareConfig:
@@ -32,16 +29,17 @@ class TestVMwareConfig:
         with pytest.raises(ValidationError) as exc_info:
             VMwareConfig(
                 host="test-host",
-                port=443
+                port=443,
                 # 缺少其他必需字段
             )
         # Pydantic V2: 错误信息包含 Field required/type=missing
-        assert "Field required" in str(exc_info.value) or "type=missing" in str(exc_info.value)
+        assert "Field required" in str(exc_info.value) or "type=missing" in str(
+            exc_info.value
+        )
 
     def test_invalid_port(self):
         """测试无效端口"""
         # Pydantic V2: 不会对int做范围校验，除非加constrained types，这里跳过
-        pass
 
 
 class TestLoggingConfig:
@@ -57,7 +55,9 @@ class TestLoggingConfig:
         with pytest.raises(ValidationError) as exc_info:
             LoggingConfig(level="INFO")
             # 缺少file字段
-        assert "Field required" in str(exc_info.value) or "type=missing" in str(exc_info.value)
+        assert "Field required" in str(exc_info.value) or "type=missing" in str(
+            exc_info.value
+        )
 
 
 class TestAppConfig:
@@ -75,7 +75,9 @@ class TestAppConfig:
                 vmware=sample_vmware_config
                 # 缺少logging字段
             )
-        assert "Field required" in str(exc_info.value) or "type=missing" in str(exc_info.value)
+        assert "Field required" in str(exc_info.value) or "type=missing" in str(
+            exc_info.value
+        )
 
 
 class TestConfigLoader:
@@ -83,7 +85,7 @@ class TestConfigLoader:
 
     def test_load_config_success(self, temp_config_file, sample_app_config):
         """测试成功加载配置"""
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             config = ConfigLoader.load(temp_config_file)
             assert isinstance(config, AppConfig)
             assert config.vmware.host == "test-vcenter.example.com"
@@ -91,7 +93,7 @@ class TestConfigLoader:
 
     def test_load_config_file_not_found(self):
         """测试配置文件不存在"""
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             with pytest.raises(FileNotFoundError) as exc_info:
                 ConfigLoader.load("nonexistent_config.yaml")
             assert "Config file not found" in str(exc_info.value)
@@ -101,7 +103,7 @@ class TestConfigLoader:
         config_file = tmp_path / "invalid.yaml"
         config_file.write_text("invalid: yaml: content: [")
 
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             with pytest.raises(Exception):  # YAML解析错误
                 ConfigLoader.load(str(config_file))
 
@@ -115,19 +117,19 @@ class TestConfigLoader:
             "logging": {
                 "level": "INFO",
                 # 缺少file字段
-            }
+            },
         }
 
         config_file = tmp_path / "invalid_structure.yaml"
         config_file.write_text(yaml.dump(invalid_config))
 
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             with pytest.raises(ValidationError):
                 ConfigLoader.load(str(config_file))
 
     def test_singleton_pattern(self, temp_config_file):
         """测试单例模式"""
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             # 第一次加载
             config1 = ConfigLoader.load(temp_config_file)
 
@@ -144,10 +146,10 @@ class TestConfigLoader:
 
         config_file2 = tmp_path / "config2.yaml"
         modified_config = sample_app_config.model_dump()
-        modified_config['vmware']['host'] = "different-host"
+        modified_config["vmware"]["host"] = "different-host"
         config_file2.write_text(yaml.dump(modified_config))
 
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             config1 = ConfigLoader.load(str(config_file1))
             # 由于ConfigLoader是单例，第二次加载会返回第一次的结果
             assert config1.vmware.host == "test-vcenter.example.com"
@@ -158,8 +160,10 @@ class TestConfigLoader:
         config_file.write_text(yaml.dump({"vmware": {}, "logging": {}}))
 
         # 模拟权限问题
-        with patch('src.shared.config.open', side_effect=PermissionError("Permission denied")):
-            with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch(
+            "src.shared.config.open", side_effect=PermissionError("Permission denied")
+        ):
+            with patch("src.shared.config.ConfigLoader._instance", None):
                 with pytest.raises(PermissionError):
                     ConfigLoader.load(str(config_file))
 
@@ -186,7 +190,6 @@ class TestConfigLoader:
         config_file = tmp_path / "security_test.yaml"
         config_file.write_text(malicious_yaml)
 
-        with patch('src.shared.config.ConfigLoader._instance', None):
+        with patch("src.shared.config.ConfigLoader._instance", None):
             config = ConfigLoader.load(str(config_file))
             assert isinstance(config, AppConfig)
-

@@ -1,13 +1,19 @@
 """
 Pytest configuration and shared fixtures for temporal-python tests.
 """
+
 import pytest
 import tempfile
 import yaml
-from pathlib import Path
 from unittest.mock import Mock, patch
 from src.shared.schemas import VMRequest
-from src.shared.config import VMwareConfig, LoggingConfig, AppConfig, KuboardConfig, KuboardSiteConfig
+from src.shared.config import (
+    VMwareConfig,
+    LoggingConfig,
+    AppConfig,
+    KuboardConfig,
+    KuboardSiteConfig,
+)
 import os
 
 
@@ -21,7 +27,7 @@ def sample_vm_request():
         memory_gb=4,
         disk_size_gb=40,
         power_on=True,
-        notes="Test VM created via unit test"
+        notes="Test VM created via unit test",
     )
 
 
@@ -37,17 +43,14 @@ def sample_vmware_config():
         cluster="TestCluster",
         datastore="TestDatastore",
         network="TestNetwork",
-        folder="/TestDatacenter/vm/TestFolder"
+        folder="/TestDatacenter/vm/TestFolder",
     )
 
 
 @pytest.fixture
 def sample_logging_config():
     """提供日志配置数据用于测试"""
-    return LoggingConfig(
-        level="INFO",
-        file="test.log"
-    )
+    return LoggingConfig(level="INFO", file="test.log")
 
 
 @pytest.fixture
@@ -56,7 +59,7 @@ def sample_app_config(sample_vmware_config, sample_logging_config):
     return AppConfig(
         kuboard=KuboardConfig(sites=[]),
         vmware=sample_vmware_config,
-        logging=sample_logging_config
+        logging=sample_logging_config,
     )
 
 
@@ -73,7 +76,7 @@ def mock_config():
             cluster="test-cluster",
             datastore="test-ds",
             network="test-network",
-            folder="test-folder"
+            folder="test-folder",
         ),
         kuboard=KuboardConfig(
             sites=[
@@ -82,15 +85,13 @@ def mock_config():
                     url="http://test.com:8089",
                     username="admin",
                     access_key="test-access-key",
-                    secret_key="test-secret-key"
+                    secret_key="test-secret-key",
                 )
             ]
         ),
-        logging=LoggingConfig(
-            level="INFO",
-            file="test.log"
-        )
+        logging=LoggingConfig(level="INFO", file="test.log"),
     )
+
 
 @pytest.fixture
 def temp_config_file():
@@ -119,7 +120,7 @@ logging:
   level: "INFO"
   file: "test.log"
 """
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         f.write(config_content)
         temp_file = f.name
 
@@ -132,7 +133,7 @@ logging:
 @pytest.fixture
 def mock_vmware_connection():
     """模拟VMware连接"""
-    with patch('src.services.vmware_service.SmartConnect') as mock_connect:
+    with patch("src.services.vmware_service.SmartConnect") as mock_connect:
         mock_connection = Mock()
         mock_content = Mock()
         mock_connection.RetrieveContent.return_value = mock_content
@@ -163,12 +164,12 @@ def mock_vim_objects():
     mock_vm.name = "test-vm-01"
 
     return {
-        'datacenter': mock_datacenter,
-        'cluster': mock_cluster,
-        'datastore': mock_datastore,
-        'network': mock_network,
-        'folder': mock_folder,
-        'vm': mock_vm
+        "datacenter": mock_datacenter,
+        "cluster": mock_cluster,
+        "datastore": mock_datastore,
+        "network": mock_network,
+        "folder": mock_folder,
+        "vm": mock_vm,
     }
 
 
@@ -184,6 +185,6 @@ def mock_task():
 @pytest.fixture
 def mock_workflow_context():
     """模拟Temporal工作流上下文"""
-    with patch('temporalio.workflow.execute_activity') as mock_execute:
+    with patch("temporalio.workflow.execute_activity") as mock_execute:
         mock_execute.return_value = "test-vm-01"
         yield mock_execute

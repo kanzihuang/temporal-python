@@ -9,6 +9,7 @@ from src.shared.config import config
 logger = logging.getLogger(__name__)
 logger.setLevel(config.logging.level)
 
+
 @activity.defn(name="create_vm_activity")
 async def create_vm_activity(request: VMRequest) -> str:
     """Temporal活动：创建VMware虚拟机"""

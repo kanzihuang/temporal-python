@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Optional, List
 from temporalio.client import Client
 
+
 class VMwareConfig(BaseModel):
     host: str
     port: int
@@ -17,6 +18,7 @@ class VMwareConfig(BaseModel):
     network: str
     folder: str
 
+
 class KuboardSiteConfig(BaseModel):
     name: str
     url: str
@@ -24,19 +26,23 @@ class KuboardSiteConfig(BaseModel):
     access_key: str
     secret_key: str
 
+
 class KuboardConfig(BaseModel):
     sites: List[KuboardSiteConfig]
     # cluster_id 到 kuboard 站点名称的映射
     clusters: List[dict] = []
 
+
 class LoggingConfig(BaseModel):
     level: str
     file: str
+
 
 class AppConfig(BaseModel):
     vmware: Optional[VMwareConfig] = None
     kuboard: Optional[KuboardConfig] = None
     logging: LoggingConfig
+
 
 class ConfigLoader:
     _instance: Optional[AppConfig] = None
@@ -89,6 +95,7 @@ class ConfigLoader:
 
         return cls.get_kuboard_site(mapped_site_name)
 
+
 async def get_temporal_client() -> Client:
     """获取 Temporal 客户端连接"""
     temporal_host = os.getenv("TEMPORAL_HOST", "localhost")
@@ -96,12 +103,14 @@ async def get_temporal_client() -> Client:
 
     try:
         client = await asyncio.wait_for(
-            Client.connect(f"{temporal_host}:{temporal_port}"),
-            timeout=10
+            Client.connect(f"{temporal_host}:{temporal_port}"), timeout=10
         )
         return client
     except Exception as e:
-        raise ConnectionError(f"Failed to connect to Temporal server at {temporal_host}:{temporal_port}: {str(e)}")
+        raise ConnectionError(
+            f"Failed to connect to Temporal server at {temporal_host}:{temporal_port}: {str(e)}"
+        )
+
 
 # 全局配置实例
 config = ConfigLoader.load()

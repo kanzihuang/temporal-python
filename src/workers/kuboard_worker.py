@@ -1,13 +1,20 @@
 import asyncio
 import logging
 from temporalio.worker import Worker
-from src.workflows.kuboard_workflows import KuboardNamespaceAuthorize, KuboardNamespaceCreate
-from src.activities.kuboard_activities import create_namespace_activity, grant_permission_activity
+from src.workflows.kuboard_workflows import (
+    KuboardNamespaceAuthorize,
+    KuboardNamespaceCreate,
+)
+from src.activities.kuboard_activities import (
+    create_namespace_activity,
+    grant_permission_activity,
+)
 from src.shared.config import get_temporal_client
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 async def main():
     try:
@@ -38,6 +45,7 @@ async def main():
     except Exception as e:
         logger.error(f"启动 worker 时发生错误: {e}")
         return 1
+
 
 if __name__ == "__main__":
     try:

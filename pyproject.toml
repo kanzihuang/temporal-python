@@ -22,18 +22,22 @@ pytest = "^8.4.1"
 pytest-cov = "^6.2.1"
 pytest-asyncio = "^1.0.0"
 flake8 = "^7.3.0"
+black = "^25.9.0"
+autoflake = "^2.3.1"
 
 [tool.black]
 line-length = 88
 target-version = ["py39"]
-include = ["\\.pyi?$", "\\.pyx?$"]
-exclude = [
-    "\\.git/",
-    "\\.mypy_cache/",
-    "\\.venv/",
-    "dist/",
-    "build/"
-]
+include = "\\.pyi?$"
+exclude = '''
+(
+    \\.git/
+  | \\.mypy_cache/
+  | \\.venv/
+  | dist/
+  | build/
+)
+'''
 
 [tool.isort]
 profile = "black"

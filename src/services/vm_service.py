@@ -2,7 +2,6 @@ import ssl
 import logging
 from pyVim.connect import SmartConnect, Disconnect
 from pyVmomi import vim
-from typing import Optional
 from src.shared.config import config
 from src.shared.schemas import VMRequest
 
@@ -10,9 +9,10 @@ from src.shared.schemas import VMRequest
 logger = logging.getLogger(__name__)
 logger.setLevel(config.logging.level)
 file_handler = logging.FileHandler(config.logging.file)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+
 
 class VMwareService:
     def __init__(self):
@@ -32,7 +32,7 @@ class VMwareService:
                 user=config.vmware.username,
                 pwd=config.vmware.password,
                 port=config.vmware.port,
-                sslContext=context
+                sslContext=context,
             )
 
             if not self.connection:
@@ -88,7 +88,7 @@ class VMwareService:
     def _get_vm_folder(self) -> vim.Folder:
         """获取VM文件夹"""
         # 解析文件夹路径
-        path_parts = config.vmware.folder.strip('/').split('/')
+        path_parts = config.vmware.folder.strip("/").split("/")
         current_folder = self.content.rootFolder
 
         for part in path_parts:
@@ -131,13 +131,17 @@ class VMwareService:
             disk_spec.device.backing.thinProvisioned = True
             disk_spec.device.backing.datastore = datastore
             disk_spec.device.unitNumber = 0
-            disk_spec.device.capacityInKB = request.disk_size_gb * 1024 * 1024  # 转换为KB
+            disk_spec.device.capacityInKB = (
+                request.disk_size_gb * 1024 * 1024
+            )  # 转换为KB
 
             # 创建网络适配器规范
             nic_spec = vim.vm.device.VirtualDeviceSpec()
             nic_spec.operation = vim.vm.device.VirtualDeviceSpec.Operation.add
             nic_spec.device = vim.vm.device.VirtualE1000()
-            nic_spec.device.backing = vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
+            nic_spec.device.backing = (
+                vim.vm.device.VirtualEthernetCard.NetworkBackingInfo()
+            )
             nic_spec.device.backing.network = network
             nic_spec.device.backing.deviceName = network.name
             nic_spec.device.connectable = vim.vm.device.VirtualDevice.ConnectInfo()
@@ -148,10 +152,7 @@ class VMwareService:
             vm_config.deviceChange = [disk_spec, nic_spec]
 
             # 创建VM任务
-            task = vm_folder.CreateVM_Task(
-                config=vm_config,
-                pool=resource_pool
-            )
+            task = vm_folder.CreateVM_Task(config=vm_config, pool=resource_pool)
 
             # 等待任务完成
             task_result = self._wait_for_task(task)
@@ -189,6 +190,10 @@ class VMwareService:
     def _wait_for_task(task: vim.Task) -> vim.TaskInfo.State:
         """等待任务完成"""
         import time
-        while task.info.state not in [vim.TaskInfo.State.success, vim.TaskInfo.State.error]:
+
+        while task.info.state not in [
+            vim.TaskInfo.State.success,
+            vim.TaskInfo.State.error,
+        ]:
             time.sleep(2)
         return task.info.state

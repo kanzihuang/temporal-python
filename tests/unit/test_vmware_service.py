@@ -1,9 +1,10 @@
 """
 Unit tests for src.services.vmware_service module.
 """
+
 import pytest
 import ssl
-from unittest.mock import Mock, patch, MagicMock, ANY
+from unittest.mock import Mock, patch
 from pyVmomi import vim
 from src.services.vmware_service import VMwareService
 from src.shared.schemas import VMRequest
@@ -18,9 +19,11 @@ class TestVMwareService:
         assert service.connection is None
         assert service.content is None
 
-    @patch('src.services.vmware_service.SmartConnect')
-    @patch('src.services.vmware_service.config')
-    def test_connect_success(self, mock_config, mock_smart_connect, mock_vmware_connection):
+    @patch("src.services.vmware_service.SmartConnect")
+    @patch("src.services.vmware_service.config")
+    def test_connect_success(
+        self, mock_config, mock_smart_connect, mock_vmware_connection
+    ):
         """测试成功连接到VMware"""
         mock_connect, mock_connection, mock_content = mock_vmware_connection
         mock_smart_connect.return_value = mock_connection
@@ -31,13 +34,13 @@ class TestVMwareService:
         # 验证SmartConnect被调用
         mock_smart_connect.assert_called_once()
         call_args = mock_smart_connect.call_args
-        assert call_args[1]['host'] == mock_config.vmware.host
-        assert call_args[1]['user'] == mock_config.vmware.username
-        assert call_args[1]['pwd'] == mock_config.vmware.password
-        assert call_args[1]['port'] == mock_config.vmware.port
+        assert call_args[1]["host"] == mock_config.vmware.host
+        assert call_args[1]["user"] == mock_config.vmware.username
+        assert call_args[1]["pwd"] == mock_config.vmware.password
+        assert call_args[1]["port"] == mock_config.vmware.port
 
         # 验证SSL上下文配置
-        ssl_context = call_args[1]['sslContext']
+        ssl_context = call_args[1]["sslContext"]
         assert isinstance(ssl_context, ssl.SSLContext)
         assert ssl_context.check_hostname is False
         assert ssl_context.verify_mode == ssl.CERT_NONE
@@ -46,7 +49,7 @@ class TestVMwareService:
         assert service.connection == mock_connection
         assert service.content == mock_content
 
-    @patch('src.services.vmware_service.SmartConnect')
+    @patch("src.services.vmware_service.SmartConnect")
     def test_connect_failure(self, mock_smart_connect):
         """测试连接失败"""
         mock_smart_connect.return_value = None
@@ -56,7 +59,7 @@ class TestVMwareService:
             service.connect()
         assert "无法连接到VMware vCenter服务器" in str(exc_info.value)
 
-    @patch('src.services.vmware_service.SmartConnect')
+    @patch("src.services.vmware_service.SmartConnect")
     def test_connect_exception(self, mock_smart_connect):
         """测试连接异常"""
         mock_smart_connect.side_effect = Exception("Connection failed")
@@ -69,7 +72,7 @@ class TestVMwareService:
     def test_get_datacenter_success(self, mock_vmware_connection, mock_vim_objects):
         """测试成功获取数据中心"""
         mock_connect, mock_connection, mock_content = mock_vmware_connection
-        mock_datacenter = mock_vim_objects['datacenter']
+        mock_datacenter = mock_vim_objects["datacenter"]
 
         # 设置rootFolder.childEntity
         mock_content.rootFolder = Mock()
@@ -78,7 +81,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.datacenter = "TestDatacenter"
             result = service._get_datacenter()
 
@@ -97,7 +100,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.datacenter = "TestDatacenter"
             with pytest.raises(Exception) as exc_info:
                 service._get_datacenter()
@@ -105,15 +108,15 @@ class TestVMwareService:
 
     def test_get_cluster_success(self, mock_vim_objects):
         """测试成功获取集群"""
-        mock_datacenter = mock_vim_objects['datacenter']
-        mock_cluster = mock_vim_objects['cluster']
+        mock_datacenter = mock_vim_objects["datacenter"]
+        mock_cluster = mock_vim_objects["cluster"]
 
         mock_datacenter.hostFolder = Mock()
         mock_datacenter.hostFolder.childEntity = [mock_cluster]
 
         service = VMwareService()
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.cluster = "TestCluster"
             result = service._get_cluster(mock_datacenter)
 
@@ -121,7 +124,7 @@ class TestVMwareService:
 
     def test_get_cluster_not_found(self, mock_vim_objects):
         """测试集群未找到"""
-        mock_datacenter = mock_vim_objects['datacenter']
+        mock_datacenter = mock_vim_objects["datacenter"]
 
         # 设置不同的集群名称
         mock_cluster = Mock()
@@ -131,7 +134,7 @@ class TestVMwareService:
 
         service = VMwareService()
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.cluster = "TestCluster"
             with pytest.raises(Exception) as exc_info:
                 service._get_cluster(mock_datacenter)
@@ -152,7 +155,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.datastore = "TestDatastore"
             result = service._get_datastore()
 
@@ -173,7 +176,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.datastore = "TestDatastore"
             with pytest.raises(Exception) as exc_info:
                 service._get_datastore()
@@ -194,7 +197,7 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.network = "TestNetwork"
             result = service._get_network()
 
@@ -224,10 +227,10 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.folder = "Datacenter01/vm/Workloads"  # 移除开头的斜杠
             # 直接 mock _get_vm_folder 方法
-            with patch.object(service, '_get_vm_folder', return_value=mock_folder3):
+            with patch.object(service, "_get_vm_folder", return_value=mock_folder3):
                 result = service._get_vm_folder()
                 assert result == mock_folder3
 
@@ -244,15 +247,20 @@ class TestVMwareService:
         service = VMwareService()
         service.content = mock_content
 
-        with patch('src.services.vmware_service.config') as mock_config:
+        with patch("src.services.vmware_service.config") as mock_config:
             mock_config.vmware.folder = "/Datacenter01/vm/Workloads"
             with pytest.raises(Exception) as exc_info:
                 service._get_vm_folder()
             assert "文件夹路径 /Datacenter01/vm/Workloads 未找到" in str(exc_info.value)
 
-    @patch('src.services.vmware_service.Disconnect')
-    def test_create_vm_success(self, mock_disconnect, mock_vmware_connection,
-                              mock_vim_objects, sample_vm_request):
+    @patch("src.services.vmware_service.Disconnect")
+    def test_create_vm_success(
+        self,
+        mock_disconnect,
+        mock_vmware_connection,
+        mock_vim_objects,
+        sample_vm_request,
+    ):
         """测试成功创建VM"""
         mock_connect, mock_connection, mock_content = mock_vmware_connection
 
@@ -285,22 +293,29 @@ class TestVMwareService:
         service.content = mock_content
 
         # 模拟所有_get_*方法
-        with patch.multiple(service,
-                          _get_resource_pool=Mock(return_value=mock_resource_pool),
-                          _get_datastore=Mock(return_value=mock_datastore),
-                          _get_network=Mock(return_value=mock_network),
-                          _get_vm_folder=Mock(return_value=mock_folder),
-                          _get_vm_by_name=Mock(return_value=mock_vm),
-                          _wait_for_task=Mock(return_value=vim.TaskInfo.State.success)):
+        with patch.multiple(
+            service,
+            _get_resource_pool=Mock(return_value=mock_resource_pool),
+            _get_datastore=Mock(return_value=mock_datastore),
+            _get_network=Mock(return_value=mock_network),
+            _get_vm_folder=Mock(return_value=mock_folder),
+            _get_vm_by_name=Mock(return_value=mock_vm),
+            _wait_for_task=Mock(return_value=vim.TaskInfo.State.success),
+        ):
 
             result = service.create_vm(sample_vm_request)
 
             assert result == sample_vm_request.vm_name
             mock_disconnect.assert_called_once_with(mock_connection)
 
-    @patch('src.services.vmware_service.Disconnect')
-    def test_create_vm_task_failure(self, mock_disconnect, mock_vmware_connection,
-                                   mock_vim_objects, sample_vm_request):
+    @patch("src.services.vmware_service.Disconnect")
+    def test_create_vm_task_failure(
+        self,
+        mock_disconnect,
+        mock_vmware_connection,
+        mock_vim_objects,
+        sample_vm_request,
+    ):
         """测试VM创建任务失败"""
         mock_connect, mock_connection, mock_content = mock_vmware_connection
 
@@ -323,12 +338,14 @@ class TestVMwareService:
         mock_network.name = "TestNetwork"  # 设置网络名称
         mock_resource_pool = Mock(spec=vim.ResourcePool)
 
-        with patch.multiple(service,
-                          _get_resource_pool=Mock(return_value=mock_resource_pool),
-                          _get_datastore=Mock(return_value=mock_datastore),
-                          _get_network=Mock(return_value=mock_network),
-                          _get_vm_folder=Mock(return_value=mock_folder),
-                          _wait_for_task=Mock(return_value=vim.TaskInfo.State.error)):
+        with patch.multiple(
+            service,
+            _get_resource_pool=Mock(return_value=mock_resource_pool),
+            _get_datastore=Mock(return_value=mock_datastore),
+            _get_network=Mock(return_value=mock_network),
+            _get_vm_folder=Mock(return_value=mock_folder),
+            _wait_for_task=Mock(return_value=vim.TaskInfo.State.error),
+        ):
 
             with pytest.raises(Exception) as exc_info:
                 service.create_vm(sample_vm_request)
@@ -338,7 +355,7 @@ class TestVMwareService:
     def test_get_vm_by_name_success(self, mock_vmware_connection, mock_vim_objects):
         """测试成功通过名称获取VM"""
         mock_connect, mock_connection, mock_content = mock_vmware_connection
-        mock_vm = mock_vim_objects['vm']
+        mock_vm = mock_vim_objects["vm"]
 
         mock_view = Mock()
         mock_view.view = [mock_vm]

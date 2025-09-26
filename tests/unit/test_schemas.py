@@ -1,6 +1,7 @@
 """
 Unit tests for src.shared.schemas module.
 """
+
 import pytest
 from pydantic import ValidationError
 from src.shared.schemas import VMRequest
@@ -41,19 +42,24 @@ class TestVMRequest:
                 guest_id="invalid-guest",
                 num_cpus=2,
                 memory_gb=4,
-                disk_size_gb=40
+                disk_size_gb=40,
             )
         assert "Invalid guest_id" in str(exc_info.value)
 
         # 测试有效的guest_id
-        valid_guests = ["otherGuest", "centos7_64Guest", "win2019srv_64Guest", "ubuntu64Guest"]
+        valid_guests = [
+            "otherGuest",
+            "centos7_64Guest",
+            "win2019srv_64Guest",
+            "ubuntu64Guest",
+        ]
         for guest_id in valid_guests:
             vm_request = VMRequest(
                 vm_name="test-vm",
                 guest_id=guest_id,
                 num_cpus=2,
                 memory_gb=4,
-                disk_size_gb=40
+                disk_size_gb=40,
             )
             assert vm_request.guest_id == guest_id
 
@@ -108,27 +114,20 @@ class TestVMRequest:
                 num_cpus=2,
                 memory_gb=4,
                 disk_size_gb=40,
-                notes=long_notes
+                notes=long_notes,
             )
         assert "String should have at most 500 characters" in str(exc_info.value)
 
         # 测试None notes（应该有效）
         vm_request = VMRequest(
-            vm_name="test-vm",
-            num_cpus=2,
-            memory_gb=4,
-            disk_size_gb=40,
-            notes=None
+            vm_name="test-vm", num_cpus=2, memory_gb=4, disk_size_gb=40, notes=None
         )
         assert vm_request.notes is None
 
     def test_default_values(self):
         """测试默认值"""
         vm_request = VMRequest(
-            vm_name="test-vm",
-            num_cpus=2,
-            memory_gb=4,
-            disk_size_gb=40
+            vm_name="test-vm", num_cpus=2, memory_gb=4, disk_size_gb=40
         )
         assert vm_request.guest_id == "otherGuest"
         assert vm_request.power_on is True
@@ -142,7 +141,7 @@ class TestVMRequest:
                 num_cpus=2,
                 memory_gb=4,
                 disk_size_gb=40,
-                extra_field="should_fail"
+                extra_field="should_fail",
             )
         assert "extra_field" in str(exc_info.value)
 

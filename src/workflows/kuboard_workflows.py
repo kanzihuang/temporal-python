@@ -24,9 +24,9 @@ class GrantPermissionParams:
 class KuboardNamespaceCreateParams:
     # kuboard_site_name 参数删除，运行时根据 cluster_id 解析
     cluster_id: str
-    namespace: str
-    ldap_user_name: str
-    role: str
+    namespaces: list[str]  # 只需要命名空间名称列表
+    ldap_user_name: str  # 统一的用户配置
+    role: str  # 统一的角色配置
 
 
 @workflow.defn
@@ -42,10 +42,8 @@ class KuboardNamespaceAuthorize:
                 initial_interval=timedelta(seconds=1),
                 maximum_interval=timedelta(seconds=10),
                 maximum_attempts=3,
-                non_retryable_error_types=[
-                    "NamespaceNotFoundError"
-                ]
-            )
+                non_retryable_error_types=["NamespaceNotFoundError"],
+            ),
         )
 
 
@@ -53,41 +51,17 @@ class KuboardNamespaceAuthorize:
 class KuboardNamespaceCreate:
     @workflow.run
     async def run(self, params: KuboardNamespaceCreateParams):
-        # 1. 创建命名空间（如果已存在则报错）
-        try:
-            create_params = CreateNamespaceParams(
-                cluster_id=params.cluster_id,
-                namespace=params.namespace
-            )
-            await workflow.execute_activity(
-                "create_namespace_activity",
-                create_params,
-                schedule_to_close_timeout=timedelta(seconds=30),
-                retry_policy=RetryPolicy(
-                    initial_interval=timedelta(seconds=1),
-                    maximum_interval=timedelta(seconds=10),
-                    maximum_attempts=3,
-                    non_retryable_error_types=[
-                        "NamespaceAlreadyExistsError"
-                    ]
-                )
-            )
-        except Exception as e:
-            # 检查是否是命名空间已存在的异常
-            if "NamespaceAlreadyExistsError" in str(type(e).__name__):
-                # 命名空间已存在，抛出异常
-                raise
-            # 其他错误，重新抛出
-            raise
-        # 2. 授权
-        grant_params = GrantPermissionParams(
-            cluster_id=params.cluster_id,
-            namespace=params.namespace,
-            ldap_user_name=params.ldap_user_name,
-            role=params.role
-        )
+        # 批量创建命名空间并授权
         await workflow.execute_activity(
-            "grant_permission_activity",
-            grant_params,
-            schedule_to_close_timeout=timedelta(seconds=30),
+            "create_namespaces_and_grant_permissions_activity",
+            params,
+            schedule_to_close_timeout=timedelta(
+                seconds=300
+            ),  # 增加超时时间以支持批量操作
+            retry_policy=RetryPolicy(
+                initial_interval=timedelta(seconds=1),
+                maximum_interval=timedelta(seconds=10),
+                maximum_attempts=3,
+                non_retryable_error_types=["NamespaceAlreadyExistsError"],
+            ),
         )
