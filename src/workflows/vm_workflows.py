@@ -18,6 +18,11 @@ class VMCreationWorkflow:
                 initial_interval=timedelta(seconds=10),
                 maximum_interval=timedelta(seconds=60),
                 maximum_attempts=5,
+                non_retryable_error_types=[
+                    "RuntimeError",  # Failed decoding arguments
+                    "TypeError",     # 参数类型错误
+                    "AttributeError", # 缺少属性/参数错误
+                ],
             ),
             task_queue="vmware",
         )

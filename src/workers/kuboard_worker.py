@@ -8,6 +8,7 @@ from src.workflows.kuboard_workflows import (
 from src.activities.kuboard_activities import (
     create_namespace_activity,
     grant_permission_activity,
+    create_namespaces_and_grant_permissions_activity,
 )
 from src.shared.config import get_temporal_client
 
@@ -27,7 +28,11 @@ async def main():
             client,
             task_queue="kuboard",
             workflows=[KuboardNamespaceAuthorize, KuboardNamespaceCreate],
-            activities=[create_namespace_activity, grant_permission_activity],
+            activities=[
+                create_namespace_activity,
+                grant_permission_activity,
+                create_namespaces_and_grant_permissions_activity,
+            ],
         )
 
         logger.info("kuboard worker 已启动，正在监听任务队列: kuboard")

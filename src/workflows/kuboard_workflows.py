@@ -1,5 +1,6 @@
 from datetime import timedelta
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional
 from temporalio import workflow
 from temporalio.common import RetryPolicy
 
@@ -42,7 +43,10 @@ class KuboardNamespaceAuthorize:
                 initial_interval=timedelta(seconds=1),
                 maximum_interval=timedelta(seconds=10),
                 maximum_attempts=3,
-                non_retryable_error_types=["NamespaceNotFoundError"],
+                non_retryable_error_types=[
+                    "NamespaceNotFoundError",
+                    "RuntimeError",  # Failed decoding arguments 通常是 RuntimeError
+                ],
             ),
         )
 
@@ -62,6 +66,10 @@ class KuboardNamespaceCreate:
                 initial_interval=timedelta(seconds=1),
                 maximum_interval=timedelta(seconds=10),
                 maximum_attempts=3,
-                non_retryable_error_types=["NamespaceAlreadyExistsError"],
+                non_retryable_error_types=[
+                    "NamespaceAlreadyExistsError",
+                    "RuntimeError",  # Failed decoding arguments 通常是 RuntimeError
+                    "TypeError",     # 参数类型错误（如缺少必填参数）
+                ],
             ),
         )
