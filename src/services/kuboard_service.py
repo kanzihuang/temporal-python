@@ -199,27 +199,21 @@ class NamespaceAlreadyExistsError(Exception):
     """命名空间已存在的异常"""
 
 
-
 class NamespaceCreationError(Exception):
     """命名空间创建失败的异常"""
-
 
 
 class KuboardAuthError(Exception):
     """Kuboard 授权相关错误"""
 
 
-
 class KuboardNetworkError(Exception):
     """Kuboard 网络错误"""
-
 
 
 class KuboardPermissionError(Exception):
     """Kuboard 权限错误"""
 
 
-
 class NamespaceNotFoundError(Exception):
     """命名空间不存在的异常"""
-

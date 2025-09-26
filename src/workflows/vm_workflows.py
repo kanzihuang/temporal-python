@@ -20,8 +20,8 @@ class VMCreationWorkflow:
                 maximum_attempts=5,
                 non_retryable_error_types=[
                     "RuntimeError",  # Failed decoding arguments
-                    "TypeError",     # 参数类型错误
-                    "AttributeError", # 缺少属性/参数错误
+                    "TypeError",  # 参数类型错误
+                    "AttributeError",  # 缺少属性/参数错误
                 ],
             ),
             task_queue="vmware",
