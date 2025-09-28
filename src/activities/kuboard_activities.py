@@ -168,9 +168,19 @@ async def create_namespaces_and_grant_permissions_activity(
                     }
                 )
 
-        # 如果有错误，抛出异常
+        # 如果有错误，抛出异常并提供详细信息
         if errors:
-            error_summary = f"批量处理完成，成功: {len(results)}，失败: {len(errors)}"
+            # 构建详细的错误信息
+            successful_namespaces = [r["namespace"] for r in results]
+            failed_namespaces = [e["namespace"] for e in errors]
+            error_details = [f"{e['namespace']}: {e['error']}" for e in errors]
+
+            error_summary = (
+                f"批量处理完成，成功: {len(results)}，失败: {len(errors)}。"
+                f"成功的命名空间: {successful_namespaces}。"
+                f"失败的命名空间: {failed_namespaces}。"
+                f"详细错误信息: {'; '.join(error_details)}"
+            )
             raise Exception(error_summary)
 
         return True
@@ -232,9 +242,19 @@ async def grant_permissions_activity(params: KuboardNamespaceAuthorizeParams) ->
                     }
                 )
 
-        # 如果有错误，抛出异常
+        # 如果有错误，抛出异常并提供详细信息
         if errors:
-            error_summary = f"批量授权完成，成功: {len(results)}，失败: {len(errors)}"
+            # 构建详细的错误信息
+            successful_namespaces = [r["namespace"] for r in results]
+            failed_namespaces = [e["namespace"] for e in errors]
+            error_details = [f"{e['namespace']}: {e['error']}" for e in errors]
+
+            error_summary = (
+                f"批量授权完成，成功: {len(results)}，失败: {len(errors)}。"
+                f"成功的命名空间: {successful_namespaces}。"
+                f"失败的命名空间: {failed_namespaces}。"
+                f"详细错误信息: {'; '.join(error_details)}"
+            )
             raise Exception(error_summary)
 
         return True
