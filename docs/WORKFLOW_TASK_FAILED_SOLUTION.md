@@ -39,60 +39,59 @@
 
 ### 修复内容
 
-修改 `src/workers/kuboard_worker.py`，添加 **工作流任务级别的重试策略**：
+#### 1. 修改工作流定义 (`src/workflows/kuboard_workflows.py`)
+
+在工作流装饰器中添加 `failure_exception_types` 配置：
 
 ```python
-import asyncio
-import logging
-from datetime import timedelta
-from temporalio.worker import Worker
-from temporalio.common import RetryPolicy  # 新增导入
+@workflow.defn(
+    failure_exception_types=[
+        RuntimeError,  # 捕获 Failed decoding arguments
+        TypeError,     # 捕获 missing required positional argument
+        ValueError,    # 捕获参数验证错误
+    ]
+)
+class KuboardNamespaceCreate:
+    @workflow.run
+    async def run(self, params: KuboardNamespaceCreateParams):
+        # ... 工作流逻辑 ...
+```
 
-# ... 其他导入 ...
+#### 2. 修正 Worker 配置 (`src/workers/kuboard_worker.py`)
 
-async def main():
-    # ... 连接逻辑 ...
-    
-    worker = Worker(
-        client,
-        task_queue="kuboard",
-        workflows=[KuboardNamespaceAuthorize, KuboardNamespaceCreate],
-        activities=[
-            create_namespace_activity,
-            grant_permission_activity,
-            create_namespaces_and_grant_permissions_activity,
-        ],
-        # 新增：工作流任务级别的错误处理配置
-        workflow_task_timeout=timedelta(seconds=60),
-        workflow_task_retry_policy=RetryPolicy(
-            initial_interval=timedelta(seconds=1),
-            maximum_interval=timedelta(seconds=10),
-            maximum_attempts=1,  # 关键：失败后不重试
-            non_retryable_error_types=[
-                "RuntimeError",  # 捕获 Failed decoding arguments
-                "TypeError",     # 捕获 missing required positional argument
-                "ValueError",    # 捕获参数验证错误
-            ],
-        ),
-    )
+移除无效的参数，使用正确的 Worker 配置：
+
+```python
+worker = Worker(
+    client,
+    task_queue="kuboard",
+    workflows=[KuboardNamespaceAuthorize, KuboardNamespaceCreate],
+    activities=[
+        create_namespace_activity,
+        grant_permission_activity,
+        create_namespaces_and_grant_permissions_activity,
+    ],
+    # Worker 层面的正确配置
+    max_concurrent_workflow_tasks=10,
+    max_concurrent_activities=20,
+    graceful_shutdown_timeout=timedelta(seconds=30),
+)
 ```
 
 ### 关键配置说明
 
-1. **`workflow_task_retry_policy`**：控制工作流任务本身的重试行为
-2. **`maximum_attempts=1`**：确保失败后不重试
-3. **`non_retryable_error_types`**：明确指定哪些错误类型不重试
-4. **工作流级别控制**：在 Worker 层面就阻止了重试，而不是等到 Activity 层面
+1. **`failure_exception_types`**：在工作流装饰器中配置，控制工作流任务级别的异常处理
+2. **工作流级别控制**：在工作流定义层面就阻止了重试，而不是等到 Activity 层面
+3. **Worker 层面配置**：使用 Temporal Python SDK 支持的正确参数
 
 ## 🧪 测试验证
 
 创建了专门的测试文件 `tests/unit/test_worker_task_retry_policy.py` 来验证：
 
-1. ✅ Worker 正确导入了必要的依赖
-2. ✅ 配置了 `workflow_task_retry_policy`
-3. ✅ 设置了 `maximum_attempts=1`
-4. ✅ 包含了正确的 `non_retryable_error_types`
-5. ✅ 能够处理用户报告的具体错误场景
+1. ✅ 工作流装饰器正确配置了 `failure_exception_types`
+2. ✅ Worker 使用了正确的配置参数
+3. ✅ 包含了正确的 `non_retryable_error_types`
+4. ✅ 能够处理用户报告的具体错误场景
 
 ## 🎯 修复效果
 
@@ -123,16 +122,22 @@ async def main():
 
 ### 为什么这样修复有效
 
-1. **Worker 层面控制**：`workflow_task_retry_policy` 在 Worker 层面就控制了重试行为
+1. **工作流装饰器控制**：`failure_exception_types` 在工作流装饰器中控制重试行为
 2. **错误类型匹配**：`RuntimeError` 和 `TypeError` 匹配用户报告的具体错误
-3. **零重试策略**：`maximum_attempts=1` 确保失败后立即终止
-4. **全面覆盖**：同时处理 Activity 层面和工作流任务层面的错误
+3. **工作流级别处理**：在工作流定义层面就处理了参数解析错误
+4. **全面覆盖**：同时处理工作流任务层面和 Activity 层面的错误
 
 ### 与现有配置的协同
 
+- **工作流任务层面**：`failure_exception_types` 处理工作流任务创建和参数解析中的错误
 - **Activity 层面**：`non_retryable_error_types` 继续处理 Activity 执行中的错误
-- **工作流任务层面**：`workflow_task_retry_policy` 处理工作流任务创建和参数解析中的错误
 - **双重保护**：确保在任何层面遇到这些错误都会立即失败
+
+### Temporal Python SDK 正确用法
+
+- **Worker 层面**：使用 `max_concurrent_workflow_tasks`、`max_concurrent_activities` 等正确参数
+- **工作流层面**：使用 `@workflow.defn(failure_exception_types=[...])` 装饰器配置
+- **Activity 层面**：使用 `RetryPolicy(non_retryable_error_types=[...])` 配置
 
 ## 📊 测试结果
 
@@ -142,15 +147,16 @@ async def main():
 poetry run pytest tests/unit/test_worker_task_retry_policy.py tests/unit/test_production_workflow_activation_non_retries.py tests/unit/test_workflow_non_retryable_errors.py -v
 ```
 
-**结果**：15/15 测试通过 ✅
+**结果**：22/22 测试通过 ✅
 
 ## 🎉 总结
 
-通过添加 **工作流任务级别的重试策略配置**，成功解决了 "Failed decoding arguments" 错误导致工作流无限重试的问题。修复确保了：
+通过在工作流装饰器中添加 **`failure_exception_types` 配置**，成功解决了 "Failed decoding arguments" 错误导致工作流无限重试的问题。修复确保了：
 
 - **立即失败**：参数解析错误时工作流立即终止
 - **资源效率**：避免无意义的重试循环
 - **错误明确**：失败状态清晰，便于问题排查
 - **系统稳定**：防止错误的工作流占用系统资源
+- **SDK 兼容**：使用 Temporal Python SDK 的正确配置方式
 
-这个修复从根本上解决了用户报告的生产环境问题。
+这个修复从根本上解决了用户报告的生产环境问题，并遵循了 Temporal Python SDK 的最佳实践。

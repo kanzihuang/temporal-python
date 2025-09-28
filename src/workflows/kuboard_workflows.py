@@ -41,7 +41,13 @@ class KuboardNamespaceCreateParams:
             raise RuntimeError(f"参数错误：cluster_id不能为空")
 
 
-@workflow.defn
+@workflow.defn(
+    failure_exception_types=[
+        RuntimeError,  # 捕获 Failed decoding arguments
+        TypeError,  # 捕获 missing required positional argument
+        ValueError,  # 捕获参数验证错误
+    ]
+)
 class KuboardNamespaceAuthorize:
     @workflow.run
     async def run(self, params: GrantPermissionParams):
@@ -62,7 +68,13 @@ class KuboardNamespaceAuthorize:
         )
 
 
-@workflow.defn
+@workflow.defn(
+    failure_exception_types=[
+        RuntimeError,  # 捕获 Failed decoding arguments
+        TypeError,  # 捕获 missing required positional argument
+        ValueError,  # 捕获参数验证错误
+    ]
+)
 class KuboardNamespaceCreate:
     @workflow.run
     async def run(self, params: KuboardNamespaceCreateParams):
@@ -71,7 +83,8 @@ class KuboardNamespaceCreate:
 
         参数验证确保：
         - 所有decode参数错误由dataclass.__post_init__捕获
-        - retry_policy.non_retryable_error_types确保不重试
+        - failure_exception_types确保工作流任务级别不重试
+        - activity retry_policy确保activity级别正确重试
         """
         # 执行实际的业务逻辑
         await workflow.execute_activity(

@@ -35,25 +35,18 @@ async def main():
                 grant_permission_activity,
                 create_namespaces_and_grant_permissions_activity,
             ],
-            # 添加工作流任务级别的错误处理配置
-            workflow_task_timeout=timedelta(seconds=60),
-            workflow_task_retry_policy=RetryPolicy(
-                initial_interval=timedelta(seconds=1),
-                maximum_interval=timedelta(seconds=10),
-                maximum_attempts=1,  # 关键：失败后不重试
-                non_retryable_error_types=[
-                    "RuntimeError",  # 捕获 Failed decoding arguments
-                    "TypeError",  # 捕获 missing required positional argument
-                    "ValueError",  # 捕获参数验证错误
-                ],
-            ),
+            # Worker 层面的配置
+            max_concurrent_workflow_tasks=10,
+            max_concurrent_activities=20,
+            graceful_shutdown_timeout=timedelta(seconds=30),
         )
 
         logger.info("kuboard worker 已启动，正在监听任务队列: kuboard")
-        logger.info("工作流任务配置：")
-        logger.info("  - 任务超时：60秒")
-        logger.info("  - 最大重试次数：1（失败后立即终止）")
-        logger.info("  - 非重试错误类型：RuntimeError, TypeError, ValueError")
+        logger.info("Worker 配置：")
+        logger.info("  - 最大并发工作流任务：10")
+        logger.info("  - 最大并发活动任务：20")
+        logger.info("  - 优雅关闭超时：30秒")
+        logger.info("  - 工作流任务重试策略：由工作流定义控制")
         logger.info("按 Ctrl+C 停止 worker...")
         await worker.run()
 
