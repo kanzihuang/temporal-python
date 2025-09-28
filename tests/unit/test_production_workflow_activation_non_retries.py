@@ -35,9 +35,10 @@ class TestProductionWorkflowActivationNonRetries:
         ]
 
         for error_type in production_required_error_types:
-            assert (
-                error_type in workflow_source
-            ), f"生产安全风险: {error_type} 未在工作流non_retryable_error_types中 - 这将导致生产重试问题"
+            assert error_type in workflow_source, (
+                f"生产安全风险: {error_type} 未在工作流non_retryable_error_types中 "
+                f"- 这将导致生产重试问题"
+            )
 
     def test_simulate_production_failed_decode_argument_scenarios(self):
         """
@@ -97,7 +98,9 @@ class TestProductionWorkflowActivationNonRetries:
         for test_error in required_production_errors:
             assert test_error in workflow_source
 
-    def test_workflow_non_retryable_config_must_cover_user_production_logs_types(self):
+    def test_workflow_non_retryable_config_must_cover_user_production_logs_types(
+        self,
+    ):
         """
         基于用户实际生产日志和问题上进行最后的validation
         保证了非重试配置保护覆盖 production logs中出现的确切错误类型。
@@ -113,15 +116,10 @@ class TestProductionWorkflowActivationNonRetries:
 
         # 确保这两种error都在workflows non-retry配置中
         for error_name, error_description in user_production_errors:
-            if error_name not in workflow_source:
-                raise AssertionError(
-                    f"生产级安吾违警: {error_name} 未在workflow retry_policy中找到 "
-                    f"{error_description} -- 导致详细生产环境重试现象仍未得到解决！"
-                )
-
-            assert (
-                error_name in workflow_source
-            ), f"确保用户报告生产日志的破败错误'{error_name}'包含在non-retryable配置里"
+            assert error_name in workflow_source, (
+                f"生产级安全风险: {error_name} 未在workflow配置中找到 "
+                f"{error_description} -- 导致生产环境重试现象仍未得到解决！"
+            )
 
 
 if __name__ == "__main__":
