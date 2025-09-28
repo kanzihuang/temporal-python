@@ -37,6 +37,31 @@ class KuboardNamespaceCreateParams:
             raise RuntimeError("参数错误：cluster_id不能为空")
 
 
+@dataclass
+class KuboardNamespaceAuthorizeParams:
+    cluster_id: str
+    namespaces: list[str]
+    ldap_user_name: str
+    role: str
+
+    def __post_init__(self):
+        """参数验证：确保必要参数不为空"""
+        if not self.namespaces or len(self.namespaces) == 0:
+            raise RuntimeError("参数错误：namespaces不能为空或未提供")
+
+        if not all(isinstance(ns, str) for ns in self.namespaces):
+            raise RuntimeError("参数错误：namespaces列表中的每个元素必须是字符串")
+
+        if not self.cluster_id:
+            raise RuntimeError("参数错误：cluster_id不能为空")
+
+        if not self.ldap_user_name:
+            raise RuntimeError("参数错误：ldap_user_name不能为空")
+
+        if not self.role:
+            raise RuntimeError("参数错误：role不能为空")
+
+
 @workflow.defn(
     failure_exception_types=[
         RuntimeError,  # 捕获 Failed decoding arguments
@@ -46,11 +71,12 @@ class KuboardNamespaceCreateParams:
 )
 class KuboardNamespaceAuthorize:
     @workflow.run
-    async def run(self, params: GrantPermissionParams):
+    async def run(self, params: KuboardNamespaceAuthorizeParams):
+        """批量授权多个命名空间的工作流"""
         await workflow.execute_activity(
-            "grant_permission_activity",
+            "grant_permissions_activity",
             params,
-            schedule_to_close_timeout=timedelta(seconds=30),
+            schedule_to_close_timeout=timedelta(seconds=300),
             retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=1),
                 maximum_interval=timedelta(seconds=10),
@@ -58,6 +84,8 @@ class KuboardNamespaceAuthorize:
                 non_retryable_error_types=[
                     "NamespaceNotFoundError",
                     "RuntimeError",
+                    "TypeError",
+                    "ValueError",
                 ],
             ),
         )

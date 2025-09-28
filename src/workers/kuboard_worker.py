@@ -11,6 +11,7 @@ from src.activities.kuboard_activities import (
     create_namespace_activity,
     grant_permission_activity,
     create_namespaces_and_grant_permissions_activity,
+    grant_permissions_activity,
 )
 from src.shared.config import get_temporal_client
 
@@ -34,6 +35,7 @@ async def main():
                 create_namespace_activity,
                 grant_permission_activity,
                 create_namespaces_and_grant_permissions_activity,
+                grant_permissions_activity,
             ],
             # Worker 层面的配置
             max_concurrent_workflow_tasks=10,
