@@ -131,7 +131,7 @@ class TestBatchNamespaceProcessing:
 
     @pytest.mark.asyncio
     async def test_batch_processing_empty_namespace_list(self, monkeypatch):
-        """测试批量处理 - 空命名空间列表"""
+        """测试批量处理 - 空命名空间列表会触发参数验证错误"""
         called = {"create_calls": [], "grant_calls": []}
 
         class FakeService:
@@ -147,22 +147,14 @@ class TestBatchNamespaceProcessing:
 
         self._setup_mocks(monkeypatch, FakeService)
 
-        params = KuboardNamespaceCreateParams(
-            cluster_id="test-cluster",
-            namespaces=[],
-            ldap_user_name="test-user",
-            role="admin",
-        )
-
-        result = (
-            await kuboard_activities.create_namespaces_and_grant_permissions_activity(
-                params
+        # 空命名空间列表会触发 RuntimeError
+        with pytest.raises(RuntimeError, match="参数错误：namespaces不能为空或未提供"):
+            KuboardNamespaceCreateParams(
+                cluster_id="test-cluster",
+                namespaces=[],  # 空列表将触发 __post_init__ 验证失败
+                ldap_user_name="test-user",
+                role="admin",
             )
-        )
-
-        assert result is True
-        assert len(called["create_calls"]) == 0
-        assert len(called["grant_calls"]) == 0
 
     @pytest.mark.asyncio
     async def test_batch_processing_single_namespace(self, monkeypatch):

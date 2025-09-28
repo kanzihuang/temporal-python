@@ -69,8 +69,9 @@ class KuboardNamespaceCreate:
         """
         批量创建命名空间并授权的工作流。
 
-        重要提示：任何参数解析错误（如 Failed decoding arguments）
-        将导致工作流立即终止，不会重试。
+        参数验证确保：
+        - 所有decode参数错误由dataclass.__post_init__捕获
+        - retry_policy.non_retryable_error_types确保不重试
         """
         # 执行实际的业务逻辑
         await workflow.execute_activity(

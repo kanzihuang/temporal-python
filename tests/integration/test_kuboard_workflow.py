@@ -63,11 +63,12 @@ def test_workflow_parameters_validation():
 
 def test_kuboard_namespace_create_params_multiple_namespaces():
     """测试多个命名空间的参数创建"""
-    # 测试空列表
-    empty_params = KuboardNamespaceCreateParams(
-        cluster_id="c1", namespaces=[], ldap_user_name="user", role="admin"
-    )
-    assert empty_params.namespaces == []
+
+    # 修正：空列表现在应该导致异常，而不是允许
+    with pytest.raises(RuntimeError, match="参数错误：namespaces不能为空或未提供"):
+        KuboardNamespaceCreateParams(
+            cluster_id="c1", namespaces=[], ldap_user_name="user", role="admin"
+        )
 
     # 测试单个命名空间
     single_params = KuboardNamespaceCreateParams(
