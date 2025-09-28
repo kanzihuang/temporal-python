@@ -64,12 +64,12 @@ class KuBoardService:
         调用 KuBoard API 给用户授权（admin/edit/view）。
         包含两个阶段：
         1. 第一阶段：创建 KuboardAuthClusterRoleBinding，绑定 viewer 角色
-        2. 第二阶段：创建 RoleBinding，绑定指定角色到指定命名空间
+        2. 第二阶段：创建 RoleBinding，绑定 ClusterRole 到指定命名空间
         """
         # 第一阶段授权：创建 KuboardAuthClusterRoleBinding，绑定 viewer 角色
         self._grant_stage1_permission(cluster_id, username)
 
-        # 第二阶段授权：创建 RoleBinding，绑定指定角色到指定命名空间
+        # 第二阶段授权：创建 RoleBinding，绑定 ClusterRole 到指定命名空间
         self._grant_stage2_permission(cluster_id, namespace, username, role)
 
         print(
@@ -130,7 +130,7 @@ class KuBoardService:
         self, cluster_id: str, namespace: str, username: str, role: str
     ) -> None:
         """
-        第二阶段授权：创建 RoleBinding，绑定指定角色到指定命名空间
+        第二阶段授权：创建 RoleBinding，绑定 ClusterRole 到指定命名空间
         """
         url = (
             f"{self.base_url}/k8s-api/{cluster_id}/apis/"
@@ -143,7 +143,7 @@ class KuBoardService:
             "metadata": {"name": f"user-{username}-{role}", "namespace": namespace},
             "roleRef": {
                 "apiGroup": "rbac.authorization.k8s.io",
-                "kind": "Role",
+                "kind": "ClusterRole",
                 "name": role,
             },
             "subjects": [
